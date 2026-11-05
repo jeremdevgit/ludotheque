@@ -1,0 +1,7 @@
+# Produits de compilation (publiés dans les « Releases » GitHub, pas dans le dépôt)
+.build/
+dist/
+backups/
+
+# Systèmes
+.DS_Store

@@ -1,0 +1,10 @@
+#!/bin/sh
+# Exécuté par l'installateur macOS (en root) avant la copie : ferme Ludothèque si elle est ouverte et
+# retire l'ancienne version. Bibliothèque, réglages et identifiants (dossier de l'utilisateur et
+# Trousseau) sont conservés.
+APP="$3/Applications/Ludothèque.app"
+/usr/bin/pkill -x Ludotheque 2>/dev/null && sleep 1
+if [ -d "$APP" ] && [ "$(/usr/bin/defaults read "$APP/Contents/Info" CFBundleExecutable 2>/dev/null)" = "Ludotheque" ]; then
+  /bin/rm -rf "$APP"
+fi
+exit 0
