@@ -76,12 +76,12 @@ struct AchievementsView: View {
         let gs = all.compactMap(\.gamerscore).reduce(0, +)
         let plat = all.filter { $0.platinum == true }.count
         return LazyVGrid(columns: stableColumns(stableWidth, min: 150, spacing: 12, padding: 48), spacing: 12) {
-            tile("\(unlocked)", "succès débloqués sur \(total)", "trophy.fill", .yellow)
-            tile("\(all.filter(\.perfect).count)", "jeux à 100 %", "crown.fill", .orange)
-            tile("\(all.filter(\.inProgress).count)", "jeux en cours", "hourglass", .blue)
-            tile("\(Int(avg * 100)) %", "complétion moyenne (jeux commencés)", "chart.pie.fill", .green)
+            tile("\(unlocked)", String(localized: "succès débloqués sur \(total)"), "trophy.fill", .yellow)
+            tile("\(all.filter(\.perfect).count)", String(localized: "jeux à 100 %"), "crown.fill", .orange)
+            tile("\(all.filter(\.inProgress).count)", String(localized: "jeux en cours"), "hourglass", .blue)
+            tile("\(Int(avg * 100)) %", String(localized: "complétion moyenne (jeux commencés)"), "chart.pie.fill", .green)
             if gs > 0 { tile("\(gs)", "Gamerscore", "g.circle.fill", Color(Platform.xbox.color)) }
-            if all.contains(where: { $0.platform == .psn }) { tile("\(plat)", "trophées platine", "rosette", .cyan) }
+            if all.contains(where: { $0.platform == .psn }) { tile("\(plat)", String(localized: "trophées platine"), "rosette", .cyan) }
         }
     }
 
@@ -175,7 +175,7 @@ struct AchievementsView: View {
     }
 
     private func rarityBadge(_ p: Double) -> some View {
-        let (label, color): (String, Color) = p < 5 ? ("Ultra rare", .purple) : p < 15 ? ("Rare", .blue) : p < 40 ? ("Peu commun", .green) : ("Commun", .gray)
+        let (label, color): (String, Color) = p < 5 ? (String(localized: "Ultra rare"), .purple) : p < 15 ? (String(localized: "Rare"), .blue) : p < 40 ? (String(localized: "Peu commun"), .green) : (String(localized: "Commun"), .gray)
         return Text("\(label) · \(String(format: "%.1f", p)) %").font(.caption2.weight(.semibold)).foregroundStyle(color)
             .padding(.horizontal, 5).padding(.vertical, 1).background(color.opacity(0.15), in: Capsule())
     }

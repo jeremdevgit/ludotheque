@@ -45,7 +45,7 @@ struct ProfileView: View {
                         TextField("Ton nom de joueur", text: $store.profile.displayName).font(.title.bold()).textFieldStyle(.plain)
                         TextField("Devise / statut (ex. « Main support depuis 2014 »)", text: $store.profile.tagline).textFieldStyle(.plain)
                     } else {
-                        Text(p.displayName.isEmpty ? "Ton profil" : p.displayName).font(.system(size: 34, weight: .heavy))
+                        Text(p.displayName.isEmpty ? String(localized: "Ton profil") : p.displayName).font(.system(size: 34, weight: .heavy))
                         if !p.tagline.isEmpty { Text(p.tagline).font(.title3).opacity(0.9) }
                     }
                     HStack(spacing: 8) {
@@ -190,7 +190,7 @@ struct ProfileView: View {
 
     private var tagsPanel: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if store.profile.tags.isEmpty { empty("Ajoute tes pseudos Steam, Xbox, PSN, Nintendo, Riot, Battle.net, Discord…") }
+            if store.profile.tags.isEmpty { empty(String(localized: "Ajoute tes pseudos Steam, Xbox, PSN, Nintendo, Riot, Battle.net, Discord…")) }
             ForEach($store.profile.tags) { $t in
                 HStack(spacing: 10) {
                     PlatformLogo(platform: t.platform, size: 22)
@@ -205,7 +205,7 @@ struct ProfileView: View {
                         Text(t.name).font(.headline).textSelection(.enabled)
                         Text(t.platform.name).foregroundStyle(.secondary)
                         Spacer()
-                        Button { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(t.name, forType: .string); lib.flash("Pseudo copié") } label: {
+                        Button { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(t.name, forType: .string); lib.flash(String(localized: "Pseudo copié")) } label: {
                             Image(systemName: "doc.on.doc")
                         }.buttonStyle(.borderless).help("Copier le pseudo")
                         if let u = URL(string: t.url), !t.url.isEmpty { Link(destination: u) { Image(systemName: "arrow.up.right.square") } }
@@ -217,14 +217,14 @@ struct ProfileView: View {
 
     private func statsPanel(_ s: ProfileStats) -> some View {
         HStack(spacing: 12) {
-            tile("\(s.games)", "jeux"); tile("\(s.installed)", "installés"); tile("\(s.hours) h", "de jeu")
-            tile("\(s.completed)", "terminés"); tile("\(s.platforms)", "plateformes"); tile("\(SessionLog.shared.thisWeekMinutes / 60) h", "cette semaine")
+            tile("\(s.games)", String(localized: "jeux")); tile("\(s.installed)", String(localized: "installés")); tile("\(s.hours) h", String(localized: "de jeu"))
+            tile("\(s.completed)", String(localized: "terminés")); tile("\(s.platforms)", String(localized: "plateformes")); tile("\(SessionLog.shared.thisWeekMinutes / 60) h", String(localized: "cette semaine"))
         }
     }
 
     private var rankedPanel: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if store.profile.ranked.isEmpty { empty("Indique tes rangs : League of Legends, Valorant, Rocket League, Overwatch, CS2…") }
+            if store.profile.ranked.isEmpty { empty(String(localized: "Indique tes rangs : League of Legends, Valorant, Rocket League, Overwatch, CS2…")) }
             ForEach($store.profile.ranked) { $r in
                 HStack(spacing: 12) {
                     gameThumb(r.game)
@@ -234,7 +234,7 @@ struct ProfileView: View {
                                 gameField($r.game)
                                 TextField("Rang (ex. Diamant II)", text: $r.rank).frame(width: 160)
                                 Menu("Paliers") {
-                                    ForEach(["Fer", "Bronze", "Argent", "Or", "Platine", "Émeraude", "Diamant", "Maître", "Grand Maître", "Challenger"], id: \.self) { t in
+                                    ForEach([String(localized: "Fer"), String(localized: "Bronze"), String(localized: "Argent"), String(localized: "Or"), String(localized: "Platine"), String(localized: "Émeraude"), String(localized: "Diamant"), String(localized: "Maître"), String(localized: "Grand Maître"), String(localized: "Challenger")], id: \.self) { t in
                                         Button(t) { r.rank = t }
                                     }
                                 }.frame(width: 90)
@@ -267,7 +267,7 @@ struct ProfileView: View {
 
     private var masteryPanel: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if store.profile.mastery.isEmpty { empty("Les jeux que tu maîtrises, ton main, ton niveau…") }
+            if store.profile.mastery.isEmpty { empty(String(localized: "Les jeux que tu maîtrises, ton main, ton niveau…")) }
             ForEach($store.profile.mastery) { $m in
                 HStack(spacing: 12) {
                     gameThumb(m.game)
@@ -306,7 +306,7 @@ struct ProfileView: View {
     private var showcasePanel: some View {
         let games = store.profile.showcase.compactMap { k in lib.groups.first { $0.key == k } }
         return VStack(alignment: .leading, spacing: 8) {
-            if games.isEmpty { empty("Clic droit sur un jeu → « Ajouter à la vitrine du profil ».") }
+            if games.isEmpty { empty(String(localized: "Clic droit sur un jeu → « Ajouter à la vitrine du profil ».")) }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 14) {
                     ForEach(games) { g in
@@ -376,7 +376,7 @@ struct ProfileView: View {
     }
 
     private func empty(_ t: String) -> some View {
-        Text(store.editing ? t : t + " (bouton « Modifier le profil »)").font(.callout).foregroundStyle(.secondary)
+        Text(store.editing ? t : t + String(localized: " (bouton « Modifier le profil »)")).font(.callout).foregroundStyle(.secondary)
     }
 }
 
@@ -456,13 +456,13 @@ struct ShareSheet: View {
     private func export() async {
         model.working = true
         defer { model.working = false }
-        guard let d = await data() else { lib.flash("Export impossible"); return }
+        guard let d = await data() else { lib.flash(String(localized: "Export impossible")); return }
         let panel = NSSavePanel()
         panel.allowedContentTypes = [model.format.type]
         panel.nameFieldStringValue = "Profil \(store.profile.displayName.isEmpty ? "Ludothèque" : store.profile.displayName)"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         try? d.write(to: url)
-        lib.flash("Profil exporté en \(model.format.rawValue)")
+        lib.flash(String(localized: "Profil exporté en \(model.format.rawValue)"))
     }
 
     private func copy() async {
@@ -474,7 +474,7 @@ struct ShareSheet: View {
         case .pdf: pb.setData(d, forType: .pdf)
         default: pb.setString(String(data: d, encoding: .utf8) ?? "", forType: .string)
         }
-        lib.flash("Copié dans le presse-papiers")
+        lib.flash(String(localized: "Copié dans le presse-papiers"))
     }
 }
 

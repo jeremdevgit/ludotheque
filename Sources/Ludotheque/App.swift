@@ -113,13 +113,13 @@ struct LudothequeApp: App {
                 Button("À propos de Ludothèque") { showAbout() }
             }
             CommandGroup(replacing: .help) {
-                OpenWindowButton(title: "Mes autres logiciels…", id: "myapps", key: nil)
+                OpenWindowButton(title: String(localized: "Mes autres logiciels…"), id: "myapps", key: nil)
                 Link("Ludothèque sur GitHub", destination: Author.repo)
             }
             CommandGroup(after: .windowArrangement) {
-                OpenWindowButton(title: "Gestion des plateformes", id: "platforms", key: "p")
-                OpenWindowButton(title: "Mode TV (manette)", id: "tv", key: "t")
-                OpenWindowButton(title: "Statistiques", id: "stats", key: "i")
+                OpenWindowButton(title: String(localized: "Gestion des plateformes"), id: "platforms", key: "p")
+                OpenWindowButton(title: String(localized: "Mode TV (manette)"), id: "tv", key: "t")
+                OpenWindowButton(title: String(localized: "Statistiques"), id: "stats", key: "i")
             }
         }
 
@@ -169,7 +169,7 @@ private struct OpenWindowButton: View {
 /// Fenêtre « À propos » de macOS, avec le crédit de l'auteur.
 private func showAbout() {
     let credits = NSAttributedString(
-        string: "Créé par \(Author.name) — github.com/\(Author.name)\nLogiciel libre sous licence GPL-3.0-or-later.",
+        string: String(localized: "Créé par \(Author.name) — github.com/\(Author.name)\nLogiciel libre sous licence GPL-3.0-or-later."),
         attributes: [.font: NSFont.systemFont(ofSize: 11), .foregroundColor: NSColor.secondaryLabelColor])
     NSApp.orderFrontStandardAboutPanel(options: [.credits: credits])
     NSApp.activate(ignoringOtherApps: true)

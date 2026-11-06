@@ -78,6 +78,7 @@ struct OptionsView: View {
             Section("Apparence") {
                 Picker("Thème", selection: $appearance) { Text("Système").tag(0); Text("Clair").tag(1); Text("Sombre").tag(2) }
                     .pickerStyle(.segmented)
+                LanguePicker()
                 LabeledContent("Couleur d'accent") {
                     HStack(spacing: 8) {
                         ForEach(Accent.allCases) { a in
@@ -119,9 +120,9 @@ struct OptionsView: View {
 
             Section("Raccourcis clavier") {
                 Grid(alignment: .leading, horizontalSpacing: 24, verticalSpacing: 4) {
-                    ForEach([("⌘R", "Tout actualiser"), ("⌘N", "Saisir un jeu"), ("⌘J", "Jeu au hasard"), ("⌘1 … ⌘7", "Vues de la bibliothèque"),
-                             ("⌘0", "Réinitialiser les filtres"), ("⇧⌘P", "Gestion des plateformes"), ("⇧⌘T", "Mode TV"),
-                             ("⇧⌘I", "Statistiques"), ("⌘,", "Options")], id: \.0) { k, v in
+                    ForEach([("⌘R", String(localized: "Tout actualiser")), ("⌘N", String(localized: "Saisir un jeu")), ("⌘J", String(localized: "Jeu au hasard")), ("⌘1 … ⌘7", String(localized: "Vues de la bibliothèque")),
+                             ("⌘0", String(localized: "Réinitialiser les filtres")), ("⇧⌘P", String(localized: "Gestion des plateformes")), ("⇧⌘T", String(localized: "Mode TV")),
+                             ("⇧⌘I", String(localized: "Statistiques")), ("⌘,", String(localized: "Options"))], id: \.0) { k, v in
                         GridRow { Text(k).font(.system(.callout, design: .monospaced)); Text(v).foregroundStyle(.secondary) }
                     }
                 }
@@ -216,7 +217,7 @@ struct OptionsView: View {
                     Button("Vider le cache des images") {
                         try? FileManager.default.removeItem(at: Paths.caches)
                         _ = Paths.dir(Paths.caches)
-                        lib.flash("Cache des images vidé")
+                        lib.flash(String(localized: "Cache des images vidé"))
                     }
                     Button("Retélécharger les métadonnées") {
                         for f in ["gamesdb-cache.json", "gamesdb-details.json", "requirements.json"] {
@@ -229,15 +230,15 @@ struct OptionsView: View {
 
             Section("Vitesse de l'app sur ce Mac") {
                 let p = PerfMonitor.shared.summary()
-                LabeledContent("Démarrage", value: p.launches == 0 ? "pas encore mesuré"
-                               : "\(p.lastLaunchMs) ms la dernière fois · médiane \(p.medianLaunchMs) ms (\(p.launches) lancements)")
+                LabeledContent("Démarrage", value: p.launches == 0 ? String(localized: "pas encore mesuré")
+                               : String(localized: "\(p.lastLaunchMs) ms la dernière fois · médiane \(p.medianLaunchMs) ms (\(p.launches) lancements)"))
                 LabeledContent("Blocages de l'interface (7 jours)", value: p.hangs7d == 0 ? "aucun"
-                               : "\(p.hangs7d) · le plus long \(p.worstHangMs) ms")
+                               : String(localized: "\(p.hangs7d) · le plus long \(p.worstHangMs) ms"))
                 Text("Mesuré et gardé sur ce Mac uniquement, rien n'est envoyé. Un blocage = l'interface ne répond plus pendant plus de 250 ms.")
                     .font(.caption).foregroundStyle(.secondary)
                 HStack {
                     Button("Ouvrir le journal") { NSWorkspace.shared.activateFileViewerSelecting([PerfMonitor.shared.logURL]) }
-                    Button("Effacer les mesures") { PerfMonitor.shared.clear(); lib.flash("Mesures effacées") }
+                    Button("Effacer les mesures") { PerfMonitor.shared.clear(); lib.flash(String(localized: "Mesures effacées")) }
                 }
             }
 
@@ -250,7 +251,7 @@ struct OptionsView: View {
                 LabeledContent("Version", value: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev")
                 LabeledContent("Jeux", value: "\(lib.groups.count)")
                 LabeledContent("Créé par") { Link(Author.name, destination: Author.profile) }
-                LabeledContent("Licence", value: "GPL-3.0-or-later (logiciel libre)")
+                LabeledContent("Licence", value: String(localized: "GPL-3.0-or-later (logiciel libre)"))
             }
 
             Section("Mes autres logiciels") {
@@ -275,7 +276,7 @@ struct OptionsView: View {
         panel.nameFieldStringValue = "Ma ludothèque"
         guard panel.runModal() == .OK, let u = panel.url else { return }
         try? d.write(to: u)
-        transfer.message = "Export enregistré (\(transfer.format.rawValue))"
+        transfer.message = String(localized: "Export enregistré (\(transfer.format.rawValue))")
     }
 
     private func importGames() {
@@ -284,6 +285,6 @@ struct OptionsView: View {
         guard panel.runModal() == .OK, let u = panel.url else { return }
         transfer.message = nil
         if let p = DataTransfer.read(u, lib), !p.rows.isEmpty { transfer.preview = p }
-        else { transfer.message = "Aucun jeu reconnu dans ce fichier (il faut au moins une colonne Titre / Title / Name)." }
+        else { transfer.message = String(localized: "Aucun jeu reconnu dans ce fichier (il faut au moins une colonne Titre / Title / Name).") }
     }
 }

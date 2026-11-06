@@ -225,7 +225,7 @@ final class Library {
             $0.trackedMinutes = ($0.trackedMinutes ?? 0) + minutes
             if $0.status == nil || $0.status == Completion.none || $0.status == .planned { $0.status = .playing }
         }
-        flash("\(minutes) min de jeu enregistrées")
+        flash(String(localized: "\(minutes) min de jeu enregistrées"))
     }
 
     // MARK: Grouping & filtering
@@ -409,28 +409,28 @@ final class Library {
 
     func scopeTitle(_ s: Scope) -> String {
         switch s {
-        case .all: "Tous les jeux"
-        case .playable: "Jouables sur ce Mac"
-        case .installed: "Installés"
-        case .installable: "Installables localement"
-        case .cloud: "Cloud"
-        case .favorites: "Favoris"
-        case .recent: "Joués récemment"
+        case .all: String(localized: "Tous les jeux")
+        case .playable: String(localized: "Jouables sur ce Mac")
+        case .installed: String(localized: "Installés")
+        case .installable: String(localized: "Installables localement")
+        case .cloud: String(localized: "Cloud")
+        case .favorites: String(localized: "Favoris")
+        case .recent: String(localized: "Joués récemment")
         case .platform(let p): p.name
-        case .preset(let id): presets.first { $0.id == id }?.name ?? "Vue"
-        case .performance: "Performances"
-        case .emulators: "Émulateurs"
-        case .home: "Accueil"
-        case .freeGames: "Jeux gratuits"
-        case .wishlist: "Liste de souhaits"
-        case .profile: "Profil"
-        case .options: "Options"
-        case .statistics: "Statistiques"
-        case .search: "Recherche de prix"
-        case .freeLoot: "Objets gratuits"
-        case .achievements: "Succès"
-        case .windows: "Jeux Windows"
-        case .refresh: "Actualisations"
+        case .preset(let id): presets.first { $0.id == id }?.name ?? String(localized: "Vue")
+        case .performance: String(localized: "Performances")
+        case .emulators: String(localized: "Émulateurs")
+        case .home: String(localized: "Accueil")
+        case .freeGames: String(localized: "Jeux gratuits")
+        case .wishlist: String(localized: "Liste de souhaits")
+        case .profile: String(localized: "Profil")
+        case .options: String(localized: "Options")
+        case .statistics: String(localized: "Statistiques")
+        case .search: String(localized: "Recherche de prix")
+        case .freeLoot: String(localized: "Objets gratuits")
+        case .achievements: String(localized: "Succès")
+        case .windows: String(localized: "Jeux Windows")
+        case .refresh: String(localized: "Actualisations")
         }
     }
 
@@ -453,7 +453,7 @@ final class Library {
     /// "Rechercher les jeux": rescan everything and force every connected API.
     func searchGames(replace: Bool = true) async {
         let connected = Integrations.all.filter(\.isConnected)
-        if connected.isEmpty { await refresh(sync: false, replace: replace); flash("\(groups.count) jeux trouvés") }
+        if connected.isEmpty { await refresh(sync: false, replace: replace); flash(String(localized: "\(groups.count) jeux trouvés")) }
         else { await runSync(connected, replace: replace) }
     }
 
@@ -475,7 +475,7 @@ final class Library {
     func refresh(sync: Bool = true, replace: Bool = false) async {
         guard !scanning else { return }
         scanning = true
-        TaskCenter.shared.begin("scan", "Analyse des bibliothèques")
+        TaskCenter.shared.begin("scan", String(localized: "Analyse des bibliothèques"))
 
         var merged = await Task.detached(priority: .utility) { Self.scanAll() }.value
         merged = await GamesDB.shared.applyCached(merged)
@@ -484,7 +484,7 @@ final class Library {
         // Resolve names / covers for ids we couldn't identify locally.
         let pending = merged.values.filter { !$0.hasTitle || $0.coverURL == nil }
         if !pending.isEmpty {
-            TaskCenter.shared.begin("metadata", "Titres et jaquettes")
+            TaskCenter.shared.begin("metadata", String(localized: "Titres et jaquettes"))
             let found = await GamesDB.shared.fetch(Array(pending)) { done, total in
                 await MainActor.run { TaskCenter.shared.progress("metadata", done, total, "GOG GamesDB") }
             }
@@ -507,7 +507,7 @@ final class Library {
     func runSync(_ list: [Integration], replace: Bool = false) async {
         guard !list.isEmpty else { return }
         syncing.formUnion(list.map(\.platform))
-        TaskCenter.shared.begin("sync", "Synchronisation des plateformes")
+        TaskCenter.shared.begin("sync", String(localized: "Synchronisation des plateformes"))
         TaskCenter.shared.detail("sync", list.map(\.platform.name).joined(separator: ", "))
         let messages = await withTaskGroup(of: String.self) { group in
             for i in list { group.addTask { await Integrations.run(i) } }
@@ -628,7 +628,7 @@ final class Library {
         guard Self.launchAllowed(target, game: g) else { return }
         if target.hasPrefix("emu:") {
             if !Emulation.launch(target, onStart: { [weak self] pid in self?.sessions.track(key, pid: pid) }) {
-                flash("Impossible de lancer l'émulateur — vérifie sa configuration dans Réglages → Émulateurs")
+                flash(String(localized: "Impossible de lancer l'émulateur — vérifie sa configuration dans Réglages → Émulateurs"))
             }
         } else if target.hasPrefix("/") {
             NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: target), configuration: .init()) { [weak self] app, _ in
@@ -650,23 +650,23 @@ final class Library {
         if target.hasPrefix("emu:") { return true }
         if target.hasPrefix("/") {
             guard target.hasSuffix(".app") || target.hasSuffix(".app/") else {
-                let a = NSAlert(); a.messageText = "Lancement bloqué"
-                a.informativeText = "« \(g.title) » pointe vers un fichier qui n'est pas une application (\(target)). Pour ta sécurité, seules les applications .app peuvent être lancées."
+                let a = NSAlert(); a.messageText = String(localized: "Lancement bloqué")
+                a.informativeText = String(localized: "« \(g.title) » pointe vers un fichier qui n'est pas une application (\(target)). Pour ta sécurité, seules les applications .app peuvent être lancées.")
                 a.runModal(); return false
             }
             return true
         }
         guard let scheme = URL(string: target)?.scheme?.lowercased(), scheme != "file" else {
-            let a = NSAlert(); a.messageText = "Lien invalide"; a.informativeText = "Le lien de lancement de « \(g.title) » n'est pas valide."; a.runModal()
+            let a = NSAlert(); a.messageText = String(localized: "Lien invalide"); a.informativeText = String(localized: "Le lien de lancement de « \(g.title) » n'est pas valide."); a.runModal()
             return false
         }
         if knownSchemes.contains(scheme) { return true }
         let key = "allowedScheme.\(g.id).\(scheme)"
         if UserDefaults.standard.bool(forKey: key) { return true }
         let a = NSAlert()
-        a.messageText = "Ouvrir avec « \(scheme) » ?"
-        a.informativeText = "« \(g.title) » va ouvrir le lien \(target). Continue seulement si tu l'as configuré toi-même."
-        a.addButton(withTitle: "Ouvrir"); a.addButton(withTitle: "Annuler")
+        a.messageText = String(localized: "Ouvrir avec « \(scheme) » ?")
+        a.informativeText = String(localized: "« \(g.title) » va ouvrir le lien \(target). Continue seulement si tu l'as configuré toi-même.")
+        a.addButton(withTitle: String(localized: "Ouvrir")); a.addButton(withTitle: String(localized: "Annuler"))
         guard a.runModal() == .alertFirstButtonReturn else { return false }
         UserDefaults.standard.set(true, forKey: key)
         return true
@@ -690,7 +690,7 @@ final class Library {
         if let u = NSWorkspace.shared.urlForApplication(withBundleIdentifier: Launchers.geforceNow) {
             NSWorkspace.shared.openApplication(at: u, configuration: .init())
         }
-        flash("« \(g.title) » copié — colle-le dans la recherche GeForce NOW")
+        flash(String(localized: "« \(g.title) » copié — colle-le dans la recherche GeForce NOW"))
     }
 
     func addApps() {
@@ -698,7 +698,7 @@ final class Library {
         panel.allowedContentTypes = [.application]
         panel.allowsMultipleSelection = true
         panel.directoryURL = URL(fileURLWithPath: "/Applications")
-        panel.message = "Choisis les jeux à ajouter à la bibliothèque"
+        panel.message = String(localized: "Choisis les jeux à ajouter à la bibliothèque")
         guard panel.runModal() == .OK else { return }
         CustomApps.save(Array(Set(CustomApps.load() + panel.urls.map(\.path))))
         Task { await refresh(sync: false) }
@@ -759,7 +759,7 @@ final class Library {
                           lastPlayed(g).map(df.string) ?? "", esc((u.tags ?? []).joined(separator: ", "))].joined(separator: ";"))
         }
         try? lines.joined(separator: "\n").write(to: url, atomically: true, encoding: .utf8)
-        flash("Bibliothèque exportée")
+        flash(String(localized: "Bibliothèque exportée"))
     }
 
     /// Backup of everything the user typed (no credentials: they stay in the Keychain).
@@ -776,7 +776,7 @@ final class Library {
         dump["favorites"] = Array(favorites)
         dump["hidden"] = Array(hidden)
         if let d = try? JSONSerialization.data(withJSONObject: dump, options: [.prettyPrinted]) { try? d.write(to: url) }
-        flash("Sauvegarde enregistrée")
+        flash(String(localized: "Sauvegarde enregistrée"))
     }
 
     func restore() {
@@ -797,7 +797,7 @@ final class Library {
         WishlistStore.shared.reload()
         DLCompareStore.shared.reload()
         Task { await refresh(sync: false) }
-        flash("Sauvegarde restaurée")
+        flash(String(localized: "Sauvegarde restaurée"))
     }
 }
 

@@ -39,20 +39,20 @@ struct WindowsGamesView: View {
         let mac = MacSpecs.current
         let os = ProcessInfo.processInfo.operatingSystemVersion
         let anyTool = [WinTool.heroic, .crossover, .whisky].contains { $0.installed }
-        return section("1. Ton Mac est-il prêt ?") {
+        return section(String(localized: "1. Ton Mac est-il prêt ?")) {
             VStack(alignment: .leading, spacing: 8) {
-                check(WindowsGaming.appleSilicon, "Puce Apple Silicon (\(mac.chip))", "Les jeux Windows passent par la traduction x86 → ARM.")
+                check(WindowsGaming.appleSilicon, String(localized: "Puce Apple Silicon (\(mac.chip))"), String(localized: "Les jeux Windows passent par la traduction x86 → ARM."))
                 HStack {
-                    check(win.rosetta, "Rosetta 2 installé", "Indispensable pour Wine, CrossOver, Whisky et Heroic.")
+                    check(win.rosetta, String(localized: "Rosetta 2 installé"), String(localized: "Indispensable pour Wine, CrossOver, Whisky et Heroic."))
                     if !win.rosetta {
                         Button("Installer Rosetta 2") { Task { await win.installRosetta() } }.buttonStyle(.borderedProminent).controlSize(.small)
                     }
                 }
-                check(os.majorVersion >= 14, "macOS \(os.majorVersion).\(os.minorVersion)", "macOS 14 ou plus requis pour le Game Porting Toolkit (DirectX 12 → Metal).")
-                check(mac.memoryGB >= 16, "\(mac.memoryGB) Go de mémoire", mac.memoryGB >= 16 ? "Confortable." : "Suffisant pour les jeux légers ; les jeux récents demandent 16 Go.", warnOnly: true)
-                check(WindowsGaming.freeDiskGB >= 50, "\(WindowsGaming.freeDiskGB) Go libres", "Prévois 20 à 100 Go par jeu récent.", warnOnly: true)
-                check(anyTool, "Un outil de compatibilité installé", anyTool ? "Prêt à installer des jeux Windows." : "Installe Heroic (gratuit) ou CrossOver ci-dessous.")
-                check(WinTool.geforceNow.installed, "GeForce NOW installé", "Solution de secours pour les jeux avec anti-triche.", warnOnly: true)
+                check(os.majorVersion >= 14, "macOS \(os.majorVersion).\(os.minorVersion)", String(localized: "macOS 14 ou plus requis pour le Game Porting Toolkit (DirectX 12 → Metal)."))
+                check(mac.memoryGB >= 16, String(localized: "\(mac.memoryGB) Go de mémoire"), mac.memoryGB >= 16 ? "Confortable." : String(localized: "Suffisant pour les jeux légers ; les jeux récents demandent 16 Go."), warnOnly: true)
+                check(WindowsGaming.freeDiskGB >= 50, String(localized: "\(WindowsGaming.freeDiskGB) Go libres"), String(localized: "Prévois 20 à 100 Go par jeu récent."), warnOnly: true)
+                check(anyTool, String(localized: "Un outil de compatibilité installé"), anyTool ? String(localized: "Prêt à installer des jeux Windows.") : String(localized: "Installe Heroic (gratuit) ou CrossOver ci-dessous."))
+                check(WinTool.geforceNow.installed, String(localized: "GeForce NOW installé"), String(localized: "Solution de secours pour les jeux avec anti-triche."), warnOnly: true)
             }
             if let b = win.busy { ProgressView(b).controlSize(.small) }
         }
@@ -72,7 +72,7 @@ struct WindowsGamesView: View {
     // MARK: 2. Tools
 
     private var tools: some View {
-        section("2. Outils recommandés") {
+        section(String(localized: "2. Outils recommandés")) {
             LazyVGrid(columns: stableColumns(stableWidth, min: 320, spacing: 12, padding: 48), spacing: 12) {
                 ForEach(WinTool.allCases) { t in
                     VStack(alignment: .leading, spacing: 8) {
@@ -104,7 +104,7 @@ struct WindowsGamesView: View {
     // MARK: 3. One-click launcher install
 
     private var launchers: some View {
-        section("3. Installer un launcher Windows en un clic") {
+        section(String(localized: "3. Installer un launcher Windows en un clic")) {
             Text("Télécharge l'installateur officiel et l'ouvre directement dans CrossOver ou Whisky, qui créent la bouteille Windows. Pour Epic, GOG et Amazon, utilise plutôt Heroic (aucune bouteille à gérer).")
                 .font(.callout).foregroundStyle(.secondary)
             let available = [WinTool.crossover, .whisky].filter(\.installed)
@@ -136,7 +136,7 @@ struct WindowsGamesView: View {
             (vm.search.isEmpty || lib.title(g).localizedCaseInsensitiveContains(vm.search)) &&
             (vm.routeFilter == "all" || vm.routeFilter == key(r))
         }.sorted { lib.playtime($0.0) > lib.playtime($1.0) }
-        return section("4. Tes jeux Windows et comment y jouer") {
+        return section(String(localized: "4. Tes jeux Windows et comment y jouer")) {
             HStack {
                 Picker("Méthode", selection: $vm.routeFilter) {
                     Text("Toutes (\(routed.count))").tag("all")

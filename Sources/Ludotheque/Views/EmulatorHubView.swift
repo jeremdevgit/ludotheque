@@ -25,7 +25,7 @@ final class EmulatorHubModel: ObservableObject {
             let panel = NSOpenPanel()
             panel.allowedContentTypes = [.application]
             panel.directoryURL = URL(fileURLWithPath: "/Applications")
-            panel.message = "Où se trouve \(p.name) ? (télécharge-le d'abord depuis son site officiel)"
+            panel.message = String(localized: "Où se trouve \(p.name) ? (télécharge-le d'abord depuis son site officiel)")
             guard panel.runModal() == .OK, let u = panel.url else { return false }
             app = u
         }
@@ -52,8 +52,8 @@ final class EmulatorHubModel: ObservableObject {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
-        panel.message = "Dossier contenant tes jeux pour \(name) (facultatif — tu pourras le choisir plus tard)"
-        panel.prompt = "Choisir"
+        panel.message = String(localized: "Dossier contenant tes jeux pour \(name) (facultatif — tu pourras le choisir plus tard)")
+        panel.prompt = String(localized: "Choisir")
         return panel.runModal() == .OK ? panel.url?.path : nil
     }
 }
@@ -78,7 +78,7 @@ struct EmulatorHubView: View {
                     let items = Emulation.presets.filter { $0.family == family }
                     if !items.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text(family.rawValue).font(.title2.bold())
+                            Text(family.title).font(.title2.bold())
                             LazyVGrid(columns: stableColumns(stableWidth, min: 340, spacing: 14, padding: 48), spacing: 14) {
                                 ForEach(items, id: \.name) { card($0) }
                             }
@@ -133,10 +133,10 @@ struct EmulatorHubView: View {
             if let profile {
                 HStack(spacing: 6) {
                     Image(systemName: "folder").foregroundStyle(.secondary)
-                    Text(profile.romFolder.isEmpty ? "Aucun dossier de jeux" : profile.romFolder)
+                    Text(profile.romFolder.isEmpty ? String(localized: "Aucun dossier de jeux") : profile.romFolder)
                         .font(.caption).lineLimit(1).truncationMode(.middle).foregroundStyle(.secondary)
                     Spacer()
-                    Text("\(count) jeu\(count > 1 ? "x" : "")").font(.caption.weight(.semibold))
+                    Text(count > 1 ? String(localized: "\(count) jeux") : String(localized: "\(count) jeu")).font(.caption.weight(.semibold))
                     Button("Dossier…") { model.changeFolder(p); Task { await lib.refresh(sync: false) } }.controlSize(.small)
                 }
             }
@@ -160,11 +160,11 @@ struct EmulatorHubView: View {
 
     @ViewBuilder private func status(_ p: EmulatorPreset, app: URL?) -> some View {
         if !p.availableOnMac {
-            badge("Pas sur Mac", .red)
+            badge(String(localized: "Pas sur Mac"), .red)
         } else if app != nil {
-            badge("Installé", .green)
+            badge(String(localized: "Installé"), .green)
         } else {
-            badge("Non installé", .secondary)
+            badge(String(localized: "Non installé"), .secondary)
         }
     }
 

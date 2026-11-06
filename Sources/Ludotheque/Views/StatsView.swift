@@ -28,7 +28,7 @@ final class StatsModel: ObservableObject {
     /// Runs as a background job, so it continues if the user leaves the tab.
     func fetchDetails(_ lib: Library) async {
         let todo = Array(lib.groups.sorted { lib.playtime($0) > lib.playtime($1) }.prefix(150))
-        await TaskCenter.shared.runAndWait("genres", "Genres et années de sortie") {
+        await TaskCenter.shared.runAndWait("genres", String(localized: "Genres et années de sortie")) {
             for (i, g) in todo.enumerated() where !Task.isCancelled {
                 TaskCenter.shared.progress("genres", i, todo.count, lib.title(g))
                 _ = await GamesDB.shared.details(for: g.games)
@@ -79,18 +79,18 @@ struct StatsView: View {
     @ViewBuilder private func keyFigures(_ groups: [GameGroup], _ played: [GameGroup], _ total: Int, _ sessions: [Session]) -> some View {
                 // Key figures
                 LazyVGrid(columns: stableColumns(stableWidth, min: 150, spacing: 12, padding: 48), spacing: 12) {
-                    tile("\(groups.count)", "jeux dans la bibliothèque", "square.grid.2x2.fill")
-                    tile(hours(total), "de jeu au total", "clock.fill")
-                    tile("\(played.count)", "jeux lancés (\(pct(played.count, groups.count)))", "play.fill")
-                    tile(hours(played.isEmpty ? 0 : total / played.count), "en moyenne par jeu joué", "divide")
-                    tile("\(lib.count(Scope.installed))", "installés", "internaldrive.fill")
-                    tile("\(lib.count(Scope.playable))", "jouables sur ce Mac", "laptopcomputer")
-                    tile("\(completed(groups))", "terminés (\(pct(completed(groups), groups.count)))", "flag.checkered")
-                    tile("\(lib.platforms.count)", "plateformes", "square.stack.3d.up.fill")
-                    tile(hours(log.thisWeekMinutes), "cette semaine", "calendar")
-                    tile(hours(monthMinutes(sessions)), "ce mois-ci", "calendar.circle")
-                    tile("\(sessions.count)", "sessions mesurées", "timer")
-                    tile("\(streak(sessions)) j", "série de jours joués", "flame.fill")
+                    tile("\(groups.count)", String(localized: "jeux dans la bibliothèque"), "square.grid.2x2.fill")
+                    tile(hours(total), String(localized: "de jeu au total"), "clock.fill")
+                    tile("\(played.count)", String(localized: "jeux lancés (\(pct(played.count, groups.count)))"), "play.fill")
+                    tile(hours(played.isEmpty ? 0 : total / played.count), String(localized: "en moyenne par jeu joué"), "divide")
+                    tile("\(lib.count(Scope.installed))", String(localized: "installés"), "internaldrive.fill")
+                    tile("\(lib.count(Scope.playable))", String(localized: "jouables sur ce Mac"), "laptopcomputer")
+                    tile("\(completed(groups))", String(localized: "terminés (\(pct(completed(groups), groups.count)))"), "flag.checkered")
+                    tile("\(lib.platforms.count)", String(localized: "plateformes"), "square.stack.3d.up.fill")
+                    tile(hours(log.thisWeekMinutes), String(localized: "cette semaine"), "calendar")
+                    tile(hours(monthMinutes(sessions)), String(localized: "ce mois-ci"), "calendar.circle")
+                    tile("\(sessions.count)", String(localized: "sessions mesurées"), "timer")
+                    tile(String(localized: "\(streak(sessions)) j"), String(localized: "série de jours joués"), "flame.fill")
                 }
     }
 
@@ -100,13 +100,13 @@ struct StatsView: View {
 
     @ViewBuilder private func platformsRow(_ groups: [GameGroup], _ played: [GameGroup], _ total: Int, _ sessions: [Session]) -> some View {
                 HStack(alignment: .top, spacing: 20) {
-                    card("Temps de jeu par plateforme") {
+                    card(String(localized: "Temps de jeu par plateforme")) {
                         let rows = lib.platforms.map { p in (p, groups.filter { $0.platforms.contains(p) }.map(lib.playtime).reduce(0, +)) }
                             .filter { $0.1 > 0 }.sorted { $0.1 > $1.1 }
                         if rows.isEmpty { none() }
                         bars(rows.map { ($0.0.name, $0.1, hours($0.1)) }, logos: rows.map(\.0))
                     }
-                    card("Jeux par plateforme") {
+                    card(String(localized: "Jeux par plateforme")) {
                         let rows = lib.platforms.map { ($0, lib.count(.platform($0))) }.sorted { $0.1 > $1.1 }
                         bars(rows.map { ($0.0.name, $0.1, "\($0.1)") }, logos: rows.map(\.0))
                     }
@@ -114,7 +114,7 @@ struct StatsView: View {
     }
 
     @ViewBuilder private func topPlayed(_ groups: [GameGroup], _ played: [GameGroup], _ total: Int, _ sessions: [Session]) -> some View {
-                card("Les plus joués") {
+                card(String(localized: "Les plus joués")) {
                     let top = played.sorted { lib.playtime($0) > lib.playtime($1) }.prefix(15)
                     if top.isEmpty { none() }
                     let maxV = max(1, top.first.map(lib.playtime) ?? 1)
@@ -133,7 +133,7 @@ struct StatsView: View {
 
     @ViewBuilder private func activityRow(_ groups: [GameGroup], _ played: [GameGroup], _ total: Int, _ sessions: [Session]) -> some View {
                 HStack(alignment: .top, spacing: 20) {
-                    card("Activité — 30 derniers jours") {
+                    card(String(localized: "Activité — 30 derniers jours")) {
                         columns(log.perDay(30).map { ($0.0.formatted(.dateTime.day()), $0.1) }, height: 110, labelEvery: 5)
                         if sessions.isEmpty { Text("Les sessions lancées depuis Ludothèque sont mesurées automatiquement.").font(.caption).foregroundStyle(.secondary) }
                     }
@@ -145,10 +145,10 @@ struct StatsView: View {
 
     @ViewBuilder private func habitsRow(_ groups: [GameGroup], _ played: [GameGroup], _ total: Int, _ sessions: [Session]) -> some View {
                 HStack(alignment: .top, spacing: 20) {
-                    card("Jours de jeu préférés") {
+                    card(String(localized: "Jours de jeu préférés")) {
                         columns(perWeekday(sessions), height: 90, labelEvery: 1)
                     }
-                    card("Heures de jeu préférées") {
+                    card(String(localized: "Heures de jeu préférées")) {
                         columns(perHour(sessions), height: 90, labelEvery: 4)
                     }
                 }
@@ -156,11 +156,11 @@ struct StatsView: View {
 
     @ViewBuilder private func progressRow(_ groups: [GameGroup], _ played: [GameGroup], _ total: Int, _ sessions: [Session]) -> some View {
                 HStack(alignment: .top, spacing: 20) {
-                    card("Progression") {
+                    card(String(localized: "Progression")) {
                         bars(Completion.allCases.map { c in (c.label, groups.filter { lib.statusOf($0) == c }.count, "\(groups.filter { lib.statusOf($0) == c }.count)") },
                              icons: Completion.allCases.map { ($0.symbol, $0.color) })
                     }
-                    card("Disponibilité") {
+                    card(String(localized: "Disponibilité")) {
                         bars(LaunchKind.allCases.map { ($0.label, lib.count($0), "\(lib.count($0))") },
                              icons: LaunchKind.allCases.map { ($0.symbol, Color.accentColor) })
                     }
@@ -169,14 +169,14 @@ struct StatsView: View {
 
     @ViewBuilder private func genresRow(_ groups: [GameGroup], _ played: [GameGroup], _ total: Int, _ sessions: [Session]) -> some View {
                 HStack(alignment: .top, spacing: 20) {
-                    card("Genres (temps de jeu)") {
+                    card(String(localized: "Genres (temps de jeu)")) {
                         if model.genres.isEmpty {
                             Text("Genres inconnus pour l'instant.").foregroundStyle(.secondary)
                         }
-                        bars(model.genres.prefix(12).map { ($0.0, $0.2, $0.2 > 0 ? hours($0.2) : "\($0.1) jeux") })
+                        bars(model.genres.prefix(12).map { ($0.0, $0.2, $0.2 > 0 ? hours($0.2) : String(localized: "\($0.1) jeux")) })
                         analyseButton
                     }
-                    card("Années de sortie") {
+                    card(String(localized: "Années de sortie")) {
                         if model.years.isEmpty { Text("Années inconnues pour l'instant.").foregroundStyle(.secondary) }
                         columns(model.years.map { ("\($0.0 % 100)", $0.1) }, height: 110, labelEvery: max(1, model.years.count / 8))
                         if let first = model.years.first, let last = model.years.last {
@@ -188,14 +188,14 @@ struct StatsView: View {
 
     @ViewBuilder private func ratingsRow(_ groups: [GameGroup], _ played: [GameGroup], _ total: Int, _ sessions: [Session]) -> some View {
                 HStack(alignment: .top, spacing: 20) {
-                    card("Mes notes") {
+                    card(String(localized: "Mes notes")) {
                         bars((1...5).reversed().map { n in (String(repeating: "★", count: n), groups.filter { lib.entry($0.key).rating == n }.count, "\(groups.filter { lib.entry($0.key).rating == n }.count)") })
                         let tags = Dictionary(grouping: lib.user.values.flatMap { $0.tags ?? [] }, by: { $0 }).mapValues(\.count).sorted { $0.value > $1.value }.prefix(8)
                         if !tags.isEmpty {
-                            Text("Tags : " + tags.map { "\($0.key) (\($0.value))" }.joined(separator: " · ")).font(.caption).foregroundStyle(.secondary)
+                            Text(String(localized: "Tags : ") + tags.map { "\($0.key) (\($0.value))" }.joined(separator: " · ")).font(.caption).foregroundStyle(.secondary)
                         }
                     }
-                    card("Évolution de la bibliothèque") {
+                    card(String(localized: "Évolution de la bibliothèque")) {
                         columns(addedPerMonth(), height: 90, labelEvery: 2)
                         Text("Jeux ajoutés à Ludothèque par mois").font(.caption).foregroundStyle(.secondary)
                     }
@@ -204,13 +204,13 @@ struct StatsView: View {
 
     @ViewBuilder private func perfRow(_ groups: [GameGroup], _ played: [GameGroup], _ total: Int, _ sessions: [Session]) -> some View {
                 HStack(alignment: .top, spacing: 20) {
-                    card("Performances sur ce Mac") {
+                    card(String(localized: "Performances sur ce Mac")) {
                         let verdicts = groups.map { PerfMath.verdict(perf.requirements($0), game: $0.primary) }
                         let notAnalysed = groups.filter { perf.requirements($0) == nil }.count
                         let unknown = verdicts.filter { $0 == .unknown }.count - notAnalysed
                         let kinds: [Verdict] = [.smooth1440, .smooth1080, .low, .insufficient]
                         bars(kinds.map { v in (v.label, verdicts.filter { $0 == v }.count, "\(verdicts.filter { $0 == v }.count)") }
-                             + [("Sans configuration connue", unknown, "\(unknown)"), ("Pas encore analysés", notAnalysed, "\(notAnalysed)")],
+                             + [(String(localized: "Sans configuration connue"), unknown, "\(unknown)"), (String(localized: "Pas encore analysés"), notAnalysed, "\(notAnalysed)")],
                              icons: kinds.map { ($0.symbol, Color($0.color)) } + [("questionmark.circle", .secondary), ("clock", .secondary)])
                         Text("\(groups.count) jeux au total. Les jeux uniquement console ou cloud n'ont pas de configuration PC.").font(.caption).foregroundStyle(.secondary)
                         if notAnalysed > 0 {
@@ -218,7 +218,7 @@ struct StatsView: View {
                             else { Button("Analyser les \(notAnalysed) jeux restants") { Task { await perf.analyze(groups.filter { perf.requirements($0) == nil }) } }.controlSize(.small) }
                         }
                     }
-                    card("Liste de souhaits") {
+                    card(String(localized: "Liste de souhaits")) {
                         let onSale = wish.items.filter(\.onSale).count
                         let value = wish.items.compactMap { $0.steamPrice }.reduce(0, +)
                         Grid(alignment: .leading, verticalSpacing: 6) {
@@ -245,18 +245,18 @@ struct StatsView: View {
     private func funFacts(_ groups: [GameGroup], _ sessions: [Session]) -> some View {
         var facts = [(String, String)]()
         if let top = groups.max(by: { lib.playtime($0) < lib.playtime($1) }), lib.playtime(top) > 0 {
-            facts.append(("crown.fill", "Jeu le plus joué : \(lib.title(top)) (\(hours(lib.playtime(top))))"))
+            facts.append(("crown.fill", String(localized: "Jeu le plus joué : \(lib.title(top)) (\(hours(lib.playtime(top))))")))
         }
         if let longest = sessions.max(by: { $0.minutes < $1.minutes }) {
-            facts.append(("stopwatch.fill", "Plus longue session : \(hours(longest.minutes)) sur \(longest.title)"))
+            facts.append(("stopwatch.fill", String(localized: "Plus longue session : \(hours(longest.minutes)) sur \(longest.title)")))
         }
         let total = groups.map(lib.playtime).reduce(0, +)
-        if total > 0 { facts.append(("sun.max.fill", "Soit \(String(format: "%.1f", Double(total) / 1440)) jours de jeu cumulés")) }
+        if total > 0 { facts.append(("sun.max.fill", String(localized: "Soit \(String(format: "%.1f", Double(total) / 1440)) jours de jeu cumulés"))) }
         let never = groups.filter { lib.playtime($0) == 0 && $0.primary.launchKind != .none }.count
-        if never > 0 { facts.append(("tray.full.fill", "\(never) jeux jouables jamais lancés : ta pile de jeux")) }
+        if never > 0 { facts.append(("tray.full.fill", String(localized: "\(never) jeux jouables jamais lancés : ta pile de jeux"))) }
         let multi = groups.filter { $0.platforms.count > 1 }.count
-        if multi > 0 { facts.append(("square.on.square", "\(multi) jeux possédés sur plusieurs plateformes")) }
-        return card("Le saviez-vous ?") {
+        if multi > 0 { facts.append(("square.on.square", String(localized: "\(multi) jeux possédés sur plusieurs plateformes"))) }
+        return card(String(localized: "Le saviez-vous ?")) {
             ForEach(facts, id: \.1) { f in Label(f.1, systemImage: f.0) }
         }
     }

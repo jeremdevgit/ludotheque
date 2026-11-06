@@ -99,13 +99,13 @@ struct IntegrationsView: View {
 
             GroupBox("Sources") {
                 VStack(alignment: .leading, spacing: 8) {
-                    if let l = Integrations.local(p) { source("internaldrive", "Détection locale", l, active: true) }
+                    if let l = Integrations.local(p) { source("internaldrive", String(localized: "Détection locale"), l, active: true) }
                     if Integrations.galaxy.contains(p) {
-                        source("g.circle", "GOG Galaxy", "Connecte \(p.name) dans GOG Galaxy (Paramètres → Intégrations) : ses jeux sont importés automatiquement.",
+                        source("g.circle", "GOG Galaxy", String(localized: "Connecte \(p.name) dans GOG Galaxy (Paramètres → Intégrations) : ses jeux sont importés automatiquement."),
                                active: Paths.exists(GalaxyScanner.dbPath))
                     }
                     if let i = integration { source("network", "API", i.summary, active: i.isConnected) }
-                    source("square.and.pencil", "Saisie manuelle", "Ajoute n'importe quel jeu à la main (bouton + → Saisir un jeu).", active: true)
+                    source("square.and.pencil", String(localized: "Saisie manuelle"), String(localized: "Ajoute n'importe quel jeu à la main (bouton + → Saisir un jeu)."), active: true)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading).padding(6)
             }

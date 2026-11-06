@@ -394,10 +394,10 @@ final class TileView: NSView {
     private static func subtitle(_ g: GameGroup, lib: Library) -> String {
         var parts = [String]()
         switch g.primary.launchKind {
-        case .installed: parts.append("Installé")
-        case .installable: parts.append("À installer")
-        case .cloud: parts.append("Cloud")
-        case .none: if g.games.count == 1 && g.primary.macNative == false { parts.append("Pas sur Mac") }
+        case .installed: parts.append(String(localized: "Installé"))
+        case .installable: parts.append(String(localized: "À installer"))
+        case .cloud: parts.append(String(localized: "Cloud"))
+        case .none: if g.games.count == 1 && g.primary.macNative == false { parts.append(String(localized: "Pas sur Mac")) }
         }
         let m = lib.playtime(g)
         if m > 0 { parts.append(m >= 60 ? "\(m / 60) h" : "\(m) min") }
@@ -501,16 +501,16 @@ enum TileMenu {
     static func gameActions(_ g: Game, lib: Library) -> [NSMenuItem] {
         var items = [NSMenuItem]()
         switch g.launchKind {
-        case .installed: items.append(item("Jouer") { lib.launch(g) })
-        case .installable: items.append(item("Installer via \(g.platform.name)") { lib.launch(g) })
-        case .cloud: items.append(item("Jouer en streaming") { lib.launch(g) })
+        case .installed: items.append(item(String(localized: "Jouer")) { lib.launch(g) })
+        case .installable: items.append(item(String(localized: "Installer via \(g.platform.name)")) { lib.launch(g) })
+        case .cloud: items.append(item(String(localized: "Jouer en streaming")) { lib.launch(g) })
         case .none: break
         }
-        if lib.geforceNowAvailable && g.launchKind != .installed { items.append(item("Chercher dans GeForce NOW") { lib.openInGeForceNow(g) }) }
-        if g.storeURL != nil { items.append(item("Page du jeu") { lib.openStore(g) }) }
-        if g.appPath != nil || g.launchURL?.hasPrefix("emu:") == true { items.append(item("Afficher dans le Finder") { lib.reveal(g) }) }
-        if g.manualId != nil { items.append(item("Modifier…") { lib.edit(g) }) }
-        if g.launchKind == .installed { items.append(item("Désinstaller…") { lib.uninstalling = g }) }
+        if lib.geforceNowAvailable && g.launchKind != .installed { items.append(item(String(localized: "Chercher dans GeForce NOW")) { lib.openInGeForceNow(g) }) }
+        if g.storeURL != nil { items.append(item(String(localized: "Page du jeu")) { lib.openStore(g) }) }
+        if g.appPath != nil || g.launchURL?.hasPrefix("emu:") == true { items.append(item(String(localized: "Afficher dans le Finder")) { lib.reveal(g) }) }
+        if g.manualId != nil { items.append(item(String(localized: "Modifier…")) { lib.edit(g) }) }
+        if g.launchKind == .installed { items.append(item(String(localized: "Désinstaller…")) { lib.uninstalling = g }) }
         return items
     }
 
@@ -528,22 +528,22 @@ enum TileMenu {
             }
         }
         menu.addItem(.separator())
-        menu.addItem(item("Afficher les détails") { lib.selected = grp.id })
+        menu.addItem(item(String(localized: "Afficher les détails")) { lib.selected = grp.id })
         let statusMenu = NSMenu()
         for c in Completion.allCases {
             let it = item(c.label) { lib.update(grp.key) { $0.status = c } }
             it.state = lib.statusOf(grp) == c ? .on : .off
             statusMenu.addItem(it)
         }
-        let st = NSMenuItem(title: "Statut", action: nil, keyEquivalent: "")
+        let st = NSMenuItem(title: String(localized: "Statut"), action: nil, keyEquivalent: "")
         st.submenu = statusMenu
         menu.addItem(st)
-        menu.addItem(item(lib.isFavorite(grp) ? "Retirer des favoris" : "Ajouter aux favoris") { lib.toggleFavorite(grp) })
-        menu.addItem(item(lib.isHidden(grp) ? "Ne plus masquer" : "Masquer") { lib.toggleHidden(grp) })
-        menu.addItem(item(ProfileStore.shared.profile.showcase.contains(grp.key) ? "Retirer de la vitrine du profil" : "Ajouter à la vitrine du profil") {
+        menu.addItem(item(lib.isFavorite(grp) ? String(localized: "Retirer des favoris") : String(localized: "Ajouter aux favoris")) { lib.toggleFavorite(grp) })
+        menu.addItem(item(lib.isHidden(grp) ? String(localized: "Ne plus masquer") : String(localized: "Masquer")) { lib.toggleHidden(grp) })
+        menu.addItem(item(ProfileStore.shared.profile.showcase.contains(grp.key) ? String(localized: "Retirer de la vitrine du profil") : String(localized: "Ajouter à la vitrine du profil")) {
             ProfileStore.shared.toggleShowcase(grp.key)
         })
-        menu.addItem(item("Ajouter une autre version manuellement…") { lib.duplicateAsManual(grp.primary) })
+        menu.addItem(item(String(localized: "Ajouter une autre version manuellement…")) { lib.duplicateAsManual(grp.primary) })
         return menu
     }
 }

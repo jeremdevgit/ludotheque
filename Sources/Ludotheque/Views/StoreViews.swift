@@ -50,12 +50,12 @@ struct HomeView: View {
     @ViewBuilder private func homeSection(_ sec: HomeSection, _ recent: [GameGroup]) -> some View {
         switch sec {
         case .resume:
-            if !recent.isEmpty { shelf("Reprendre", recent) }
+            if !recent.isEmpty { shelf(String(localized: "Reprendre"), recent) }
         case .week:
             weekChart
         case .free:
             if !free.active.isEmpty {
-                section("Gratuit en ce moment", action: ("Tout voir", { lib.scope = .freeGames })) {
+                section(String(localized: "Gratuit en ce moment"), action: (String(localized: "Tout voir"), { lib.scope = .freeGames })) {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 14) { ForEach(free.active.prefix(10)) { GiveawayCard(item: $0, compact: true) } }
                     }
@@ -64,7 +64,7 @@ struct HomeView: View {
         case .deals:
             let deals = wish.items.filter(\.onSale)
             if !deals.isEmpty {
-                section("En promo dans ta liste de souhaits", action: ("Liste de souhaits", { lib.scope = .wishlist })) {
+                section(String(localized: "En promo dans ta liste de souhaits"), action: (String(localized: "Liste de souhaits"), { lib.scope = .wishlist })) {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 14) { ForEach(deals) { WishCard(item: $0) } }
                     }
@@ -73,10 +73,10 @@ struct HomeView: View {
         case .backlog:
             // Picked once per visit (not reshuffled on every redraw).
             let picks = model.backlog.compactMap { k in lib.groups.first { $0.id == k } }
-            if !picks.isEmpty { shelf("Ta pile de jeux — pourquoi pas ?", picks) }
+            if !picks.isEmpty { shelf(String(localized: "Ta pile de jeux — pourquoi pas ?"), picks) }
         case .news:
             if !NewsStore.shared.items.isEmpty {
-                section("Actualités de tes jeux") {
+                section(String(localized: "Actualités de tes jeux")) {
                     VStack(alignment: .leading, spacing: 10) {
                         ForEach(NewsStore.shared.items.prefix(8)) { NewsRow(item: $0) }
                     }
@@ -101,13 +101,13 @@ struct HomeView: View {
 
     private var greeting: String {
         let h = Calendar.current.component(.hour, from: Date())
-        return h < 6 ? "Bonne nuit" : h < 18 ? "Bonjour" : "Bonsoir"
+        return h < 6 ? String(localized: "Bonne nuit") : h < 18 ? String(localized: "Bonjour") : String(localized: "Bonsoir")
     }
 
     private var weekChart: some View {
         let days = log.perDay(7)
         let maxV = max(30, days.map(\.1).max() ?? 0)
-        return section("Cette semaine : \(format(log.thisWeekMinutes))") {
+        return section(String(localized: "Cette semaine : \(format(log.thisWeekMinutes))")) {
             if log.sessions.isEmpty {
                 Text("Lance un jeu depuis Ludothèque : tes sessions apparaîtront ici.").font(.callout).foregroundStyle(.secondary)
             }
@@ -278,7 +278,7 @@ struct WishCard: View {
                     }
                 }
             Text(item.title).font(.callout.weight(.medium)).lineLimit(1)
-            if let p = item.steamPrice { Text(String(format: "%.2f € sur Steam", p)).font(.caption) }
+            if let p = item.steamPrice { Text(String(format: String(localized: "%.2f € sur Steam"), p)).font(.caption) }
             if let b = item.bestDeal {
                 Text(String(format: "%.2f $", b) + (item.bestDealStore.map { " · \($0)" } ?? "")).font(.caption).foregroundStyle(.secondary)
             }

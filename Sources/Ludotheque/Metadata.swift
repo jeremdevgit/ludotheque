@@ -87,7 +87,7 @@ actor GamesDB {
 
     private static func localized(_ v: Any?) -> String? {
         guard let d = v as? [String: String] else { return nil }
-        return d["fr-FR"] ?? d["en-US"] ?? d["*"] ?? d.values.first
+        return d[Langue.bcp47] ?? d["en-US"] ?? d["*"] ?? d.values.first
     }
 
     private static func lookup(platform: String, id: String) async -> Entry? {

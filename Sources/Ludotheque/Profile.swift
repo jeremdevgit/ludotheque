@@ -43,7 +43,7 @@ struct MasteryEntry: Codable, Identifiable, Hashable {
     var main = ""          // main character / role / weapon / deck
     var note = ""
 
-    static let levels = ["", "Débutant", "Intermédiaire", "Confirmé", "Expert", "Maître"]
+    static let levels = ["", String(localized: "Débutant"), String(localized: "Intermédiaire"), String(localized: "Confirmé"), String(localized: "Expert"), String(localized: "Maître")]
     var levelName: String { Self.levels[max(1, min(5, level))] }
 }
 
@@ -52,12 +52,12 @@ enum ProfilePanel: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .stats: "Statistiques"
-        case .ranked: "Classé"
-        case .mastery: "Jeux maîtrisés"
-        case .favorites: "Vitrine de jeux"
-        case .recent: "Joués récemment"
-        case .tags: "Pseudos"
+        case .stats: String(localized: "Statistiques")
+        case .ranked: String(localized: "Classé")
+        case .mastery: String(localized: "Jeux maîtrisés")
+        case .favorites: String(localized: "Vitrine de jeux")
+        case .recent: String(localized: "Joués récemment")
+        case .tags: String(localized: "Pseudos")
         }
     }
     var symbol: String {
@@ -115,13 +115,13 @@ struct ProfileTheme {
     let name: String
     let colors: [Color]
     static let all: [ProfileTheme] = [
-        ProfileTheme(name: "Nuit", colors: [Color(red: 0.11, green: 0.14, blue: 0.27), Color(red: 0.29, green: 0.16, blue: 0.45)]),
-        ProfileTheme(name: "Néon", colors: [Color(red: 0.95, green: 0.2, blue: 0.55), Color(red: 0.25, green: 0.3, blue: 0.95)]),
-        ProfileTheme(name: "Forêt", colors: [Color(red: 0.05, green: 0.3, blue: 0.2), Color(red: 0.4, green: 0.6, blue: 0.2)]),
-        ProfileTheme(name: "Lave", colors: [Color(red: 0.5, green: 0.05, blue: 0.05), Color(red: 0.95, green: 0.45, blue: 0.1)]),
-        ProfileTheme(name: "Océan", colors: [Color(red: 0.0, green: 0.25, blue: 0.45), Color(red: 0.0, green: 0.65, blue: 0.75)]),
-        ProfileTheme(name: "Or", colors: [Color(red: 0.35, green: 0.25, blue: 0.05), Color(red: 0.85, green: 0.65, blue: 0.2)]),
-        ProfileTheme(name: "Graphite", colors: [Color(white: 0.12), Color(white: 0.35)]),
+        ProfileTheme(name: String(localized: "Nuit"), colors: [Color(red: 0.11, green: 0.14, blue: 0.27), Color(red: 0.29, green: 0.16, blue: 0.45)]),
+        ProfileTheme(name: String(localized: "Néon"), colors: [Color(red: 0.95, green: 0.2, blue: 0.55), Color(red: 0.25, green: 0.3, blue: 0.95)]),
+        ProfileTheme(name: String(localized: "Forêt"), colors: [Color(red: 0.05, green: 0.3, blue: 0.2), Color(red: 0.4, green: 0.6, blue: 0.2)]),
+        ProfileTheme(name: String(localized: "Lave"), colors: [Color(red: 0.5, green: 0.05, blue: 0.05), Color(red: 0.95, green: 0.45, blue: 0.1)]),
+        ProfileTheme(name: String(localized: "Océan"), colors: [Color(red: 0.0, green: 0.25, blue: 0.45), Color(red: 0.0, green: 0.65, blue: 0.75)]),
+        ProfileTheme(name: String(localized: "Or"), colors: [Color(red: 0.35, green: 0.25, blue: 0.05), Color(red: 0.85, green: 0.65, blue: 0.2)]),
+        ProfileTheme(name: String(localized: "Graphite"), colors: [Color(white: 0.12), Color(white: 0.35)]),
     ]
     var gradient: LinearGradient { LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing) }
 }
@@ -272,19 +272,19 @@ enum ProfileExport {
             let rep = NSBitmapImageRep(cgImage: cg)
             return rep.representation(using: format == .png ? .png : .jpeg, properties: [.compressionFactor: 0.9])
         case .csv:
-            var rows = [["Section", "Clé", "Valeur", "Détail"]]
+            var rows = [[String(localized: "Section"), String(localized: "Clé"), String(localized: "Valeur"), String(localized: "Détail")]]
             let p = c.profile
-            if o.identity { rows += [["Profil", "Nom", p.displayName, p.tagline], ["Profil", "Pays", p.country, ""]] }
-            if o.bio, !p.bio.isEmpty { rows.append(["Profil", "Bio", p.bio, ""]) }
-            if o.tags { rows += p.tags.map { ["Pseudo", $0.platform.name, $0.name, $0.url] } }
+            if o.identity { rows += [[String(localized: "Profil"), String(localized: "Nom"), p.displayName, p.tagline], [String(localized: "Profil"), String(localized: "Pays"), p.country, ""]] }
+            if o.bio, !p.bio.isEmpty { rows.append([String(localized: "Profil"), String(localized: "Bio"), p.bio, ""]) }
+            if o.tags { rows += p.tags.map { [String(localized: "Pseudo"), $0.platform.name, $0.name, $0.url] } }
             if o.stats {
-                rows += [["Stats", "Niveau", "\(c.stats.level)", "\(c.stats.xp) XP"], ["Stats", "Jeux", "\(c.stats.games)", ""],
-                         ["Stats", "Heures de jeu", "\(c.stats.hours)", ""], ["Stats", "Jeux terminés", "\(c.stats.completed)", ""]]
+                rows += [[String(localized: "Stats"), String(localized: "Niveau"), "\(c.stats.level)", "\(c.stats.xp) XP"], [String(localized: "Stats"), String(localized: "Jeux"), "\(c.stats.games)", ""],
+                         [String(localized: "Stats"), String(localized: "Heures de jeu"), "\(c.stats.hours)", ""], [String(localized: "Stats"), String(localized: "Jeux terminés"), "\(c.stats.completed)", ""]]
             }
-            if o.ranked { rows += p.ranked.map { ["Classé", $0.game, $0.rank, [$0.mode, $0.season, $0.peak.isEmpty ? "" : "Pic : \($0.peak)"].filter { !$0.isEmpty }.joined(separator: " · ")] } }
-            if o.mastery { rows += p.mastery.map { ["Maîtrise", $0.game, $0.levelName, [$0.main, $0.note].filter { !$0.isEmpty }.joined(separator: " · ")] } }
-            if o.showcase { rows += c.showcase.map { ["Vitrine", $0.0, "", ""] } }
-            if o.recent { rows += c.recent.map { ["Récent", $0.0, "\($0.1 / 60) h", ""] } }
+            if o.ranked { rows += p.ranked.map { [String(localized: "Classé"), $0.game, $0.rank, [$0.mode, $0.season, $0.peak.isEmpty ? "" : String(localized: "Pic : \($0.peak)")].filter { !$0.isEmpty }.joined(separator: " · ")] } }
+            if o.mastery { rows += p.mastery.map { [String(localized: "Maîtrise"), $0.game, $0.levelName, [$0.main, $0.note].filter { !$0.isEmpty }.joined(separator: " · ")] } }
+            if o.showcase { rows += c.showcase.map { [String(localized: "Vitrine"), $0.0, "", ""] } }
+            if o.recent { rows += c.recent.map { [String(localized: "Récent"), $0.0, "\($0.1 / 60) h", ""] } }
             let esc: (String) -> String = CSV.escape
             return rows.map { $0.map(esc).joined(separator: ",") }.joined(separator: "\n").data(using: .utf8)
         case .json:
@@ -307,15 +307,15 @@ enum ProfileExport {
     static func markdown(_ c: Content, _ o: ShareOptions) -> String {
         let p = c.profile
         var md = [String]()
-        if o.identity { md.append("# \(p.displayName.isEmpty ? "Mon profil" : p.displayName)"); if !p.tagline.isEmpty { md.append("*\(p.tagline)*") } }
+        if o.identity { md.append("# \(p.displayName.isEmpty ? String(localized: "Mon profil") : p.displayName)"); if !p.tagline.isEmpty { md.append("*\(p.tagline)*") } }
         if o.bio, !p.bio.isEmpty { md.append(p.bio) }
-        if o.stats { md.append("**Niveau \(c.stats.level)** · \(c.stats.games) jeux · \(c.stats.hours) h de jeu · \(c.stats.completed) terminés") }
-        if o.tags, !p.tags.isEmpty { md.append("## Pseudos"); md += p.tags.map { "- **\($0.platform.name)** : \($0.name)" } }
-        if o.ranked, !p.ranked.isEmpty { md.append("## Classé"); md += p.ranked.map { "- **\($0.game)** — \($0.rank)\($0.mode.isEmpty ? "" : " (\($0.mode))")\($0.peak.isEmpty ? "" : " · pic \($0.peak)")" } }
-        if o.mastery, !p.mastery.isEmpty { md.append("## Jeux maîtrisés"); md += p.mastery.map { "- **\($0.game)** — \($0.levelName)\($0.main.isEmpty ? "" : " · \($0.main)")" } }
-        if o.showcase, !c.showcase.isEmpty { md.append("## Vitrine"); md += c.showcase.map { "- \($0.0)" } }
-        if o.recent, !c.recent.isEmpty { md.append("## Joués récemment"); md += c.recent.map { "- \($0.0) (\($0.1 / 60) h)" } }
-        md.append("\n_Partagé depuis Ludothèque_")
+        if o.stats { md.append(String(localized: "**Niveau \(c.stats.level)** · \(c.stats.games) jeux · \(c.stats.hours) h de jeu · \(c.stats.completed) terminés")) }
+        if o.tags, !p.tags.isEmpty { md.append("## " + String(localized: "Pseudos")); md += p.tags.map { "- **\($0.platform.name)** : \($0.name)" } }
+        if o.ranked, !p.ranked.isEmpty { md.append("## " + String(localized: "Classé")); md += p.ranked.map { "- **\($0.game)** — \($0.rank)\($0.mode.isEmpty ? "" : " (\($0.mode))")\($0.peak.isEmpty ? "" : " · " + String(localized: "pic \($0.peak)"))" } }
+        if o.mastery, !p.mastery.isEmpty { md.append("## " + String(localized: "Jeux maîtrisés")); md += p.mastery.map { "- **\($0.game)** — \($0.levelName)\($0.main.isEmpty ? "" : " · \($0.main)")" } }
+        if o.showcase, !c.showcase.isEmpty { md.append("## " + String(localized: "Vitrine")); md += c.showcase.map { "- \($0.0)" } }
+        if o.recent, !c.recent.isEmpty { md.append("## " + String(localized: "Joués récemment")); md += c.recent.map { "- \($0.0) (\($0.1 / 60) h)" } }
+        md.append(String(localized: "\n_Partagé depuis Ludothèque_"))
         return md.joined(separator: "\n\n")
     }
 }
@@ -333,7 +333,7 @@ struct ProfileCard: View {
                 HStack(spacing: 18) {
                     avatar.frame(width: 110, height: 110).clipShape(RoundedRectangle(cornerRadius: 22)).shadow(radius: 8)
                     VStack(alignment: .leading, spacing: 6) {
-                        Text(p.displayName.isEmpty ? "Joueur" : p.displayName).font(.system(size: 38, weight: .heavy))
+                        Text(p.displayName.isEmpty ? String(localized: "Joueur") : p.displayName).font(.system(size: 38, weight: .heavy))
                         if !p.tagline.isEmpty { Text(p.tagline).font(.title3).opacity(0.85) }
                         if options.stats {
                             HStack(spacing: 8) {
@@ -349,12 +349,12 @@ struct ProfileCard: View {
             if options.bio, !p.bio.isEmpty { Text(p.bio).font(.body).opacity(0.9) }
             if options.stats {
                 HStack(spacing: 12) {
-                    stat("\(content.stats.games)", "jeux"); stat("\(content.stats.hours) h", "de jeu")
-                    stat("\(content.stats.completed)", "terminés"); stat("\(content.stats.platforms)", "plateformes")
+                    stat("\(content.stats.games)", String(localized: "jeux")); stat("\(content.stats.hours) h", String(localized: "de jeu"))
+                    stat("\(content.stats.completed)", String(localized: "terminés")); stat("\(content.stats.platforms)", String(localized: "plateformes"))
                 }
             }
             if options.tags, !p.tags.isEmpty {
-                panel("Pseudos") {
+                panel(String(localized: "Pseudos")) {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: 8) {
                         ForEach(p.tags) { t in
                             HStack(spacing: 8) {
@@ -367,7 +367,7 @@ struct ProfileCard: View {
                 }
             }
             if options.ranked, !p.ranked.isEmpty {
-                panel("Classé") {
+                panel(String(localized: "Classé")) {
                     ForEach(p.ranked) { r in
                         HStack {
                             Image(systemName: "shield.fill").foregroundStyle(r.color).font(.title2)
@@ -385,7 +385,7 @@ struct ProfileCard: View {
                 }
             }
             if options.mastery, !p.mastery.isEmpty {
-                panel("Jeux maîtrisés") {
+                panel(String(localized: "Jeux maîtrisés")) {
                     ForEach(p.mastery) { m in
                         HStack {
                             Text(m.game).font(.headline)
@@ -398,7 +398,7 @@ struct ProfileCard: View {
                 }
             }
             if options.showcase, !content.showcase.isEmpty {
-                panel("Vitrine") {
+                panel(String(localized: "Vitrine")) {
                     HStack(spacing: 12) {
                         ForEach(Array(content.showcase.enumerated()), id: \.offset) { _, s in
                             VStack {
@@ -413,7 +413,7 @@ struct ProfileCard: View {
                 }
             }
             if options.recent, !content.recent.isEmpty {
-                panel("Joués récemment") {
+                panel(String(localized: "Joués récemment")) {
                     ForEach(Array(content.recent.enumerated()), id: \.offset) { _, r in
                         HStack { Text(r.0); Spacer(); Text("\(r.1 / 60) h").opacity(0.7) }
                     }

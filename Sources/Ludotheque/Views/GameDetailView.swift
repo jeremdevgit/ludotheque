@@ -205,14 +205,14 @@ struct GameDetailView: View {
 
     private func stats(_ e: UserEntry) -> some View {
         Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 4) {
-            row("Temps de jeu", format(lib.playtime(group)))
+            row(String(localized: "Temps de jeu"), format(lib.playtime(group)))
             if group.playtimeByPlatform.count > 1 {
                 ForEach(group.playtimeByPlatform, id: \.0) { p, m in row("  · \(p.name)", format(m)) }
             }
-            if let t = e.trackedMinutes, t > 0 { row("Mesuré par Ludothèque", format(t)) }
-            row("Dernière partie", lib.lastPlayed(group)?.formatted(date: .long, time: .omitted) ?? "Jamais")
-            if let n = e.launchCount { row("Lancements", "\(n)") }
-            if let a = e.added { row("Ajouté le", a.formatted(date: .abbreviated, time: .omitted)) }
+            if let t = e.trackedMinutes, t > 0 { row(String(localized: "Mesuré par Ludothèque"), format(t)) }
+            row(String(localized: "Dernière partie"), lib.lastPlayed(group)?.formatted(date: .long, time: .omitted) ?? String(localized: "Jamais"))
+            if let n = e.launchCount { row(String(localized: "Lancements"), "\(n)") }
+            if let a = e.added { row(String(localized: "Ajouté le"), a.formatted(date: .abbreviated, time: .omitted)) }
         }.font(.callout)
     }
 
@@ -230,12 +230,12 @@ struct GameDetailView: View {
     private func metadata(_ d: GamesDB.Details, screenshots: Bool) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 4) {
-                if let r = d.release { row("Sortie", r.formatted(date: .long, time: .omitted)) }
-                if !d.genres.isEmpty { row("Genres", d.genres.joined(separator: ", ")) }
-                if !d.developers.isEmpty { row("Développeur", d.developers.joined(separator: ", ")) }
-                if !d.publishers.isEmpty { row("Éditeur", d.publishers.joined(separator: ", ")) }
-                if !d.modes.isEmpty { row("Modes", d.modes.joined(separator: ", ")) }
-                if let s = d.score { row("Note critique", "\(Int(s.rounded())) / 100") }
+                if let r = d.release { row(String(localized: "Sortie"), r.formatted(date: .long, time: .omitted)) }
+                if !d.genres.isEmpty { row(String(localized: "Genres"), d.genres.joined(separator: ", ")) }
+                if !d.developers.isEmpty { row(String(localized: "Développeur"), d.developers.joined(separator: ", ")) }
+                if !d.publishers.isEmpty { row(String(localized: "Éditeur"), d.publishers.joined(separator: ", ")) }
+                if !d.modes.isEmpty { row(String(localized: "Modes"), d.modes.joined(separator: ", ")) }
+                if let s = d.score { row(String(localized: "Note critique"), "\(Int(s.rounded())) / 100") }
             }.font(.callout)
             if let s = d.summary { Text(s).font(.callout).foregroundStyle(.secondary).textSelection(.enabled) }
             if screenshots && !d.screenshots.isEmpty {

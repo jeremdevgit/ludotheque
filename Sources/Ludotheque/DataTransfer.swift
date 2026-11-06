@@ -81,12 +81,12 @@ enum DataTransfer {
                 rows += "<tr><td>\(h(lib.title(g)))</td><td>\(h(g.platforms.map(\.name).joined(separator: ", ")))</td><td>\(h(lib.statusOf(g).label))</td><td>\(String(repeating: "★", count: lib.entry(g.key).rating ?? 0))</td><td>\(m / 60) h \(m % 60) min</td></tr>\n"
             }
             let html = """
-            <!doctype html><html lang="fr"><meta charset="utf-8"><title>Ma ludothèque</title>
+            <!doctype html><html lang="\(Langue.html)"><meta charset="utf-8"><title>\(h(String(localized: "Ma ludothèque")))</title>
             <style>body{font:14px -apple-system,sans-serif;margin:32px;color:#222}h1{margin:0 0 4px}table{border-collapse:collapse;width:100%;margin-top:16px}
             th,td{text-align:left;padding:6px 10px;border-bottom:1px solid #ddd}th{background:#f4f4f6}tr:hover td{background:#fafafa}
             @media(prefers-color-scheme:dark){body{background:#1c1c1e;color:#eee}th{background:#2c2c2e}td{border-color:#333}tr:hover td{background:#242426}}</style>
-            <h1>Ma ludothèque</h1><p>\(list.count) jeux · exporté le \(Date().formatted(date: .long, time: .omitted))</p>
-            <table><tr><th>Jeu</th><th>Plateformes</th><th>Statut</th><th>Note</th><th>Temps de jeu</th></tr>
+            <h1>\(h(String(localized: "Ma ludothèque")))</h1><p>\(h(String(localized: "\(list.count) jeux · exporté le \(Date().formatted(date: .long, time: .omitted))")))</p>
+            <table><tr><th>\(h(String(localized: "Jeu")))</th><th>\(h(String(localized: "Plateformes")))</th><th>\(h(String(localized: "Statut")))</th><th>\(h(String(localized: "Note")))</th><th>\(h(String(localized: "Temps de jeu")))</th></tr>
             \(rows)</table></html>
             """
             return html.data(using: .utf8)
@@ -169,7 +169,7 @@ enum DataTransfer {
             }
         }
         Task { await lib.refresh(sync: false) }
-        return "\(updated) jeux mis à jour, \(created) jeux ajoutés"
+        return String(localized: "\(updated) jeux mis à jour, \(created) jeux ajoutés")
     }
 
     // MARK: Mapping helpers

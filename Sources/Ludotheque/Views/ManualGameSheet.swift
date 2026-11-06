@@ -66,7 +66,7 @@ struct ManualGameSheet: View {
                         Text("Le jeu est seulement répertorié (copie physique, console, autre PC…).").font(.caption).foregroundStyle(.secondary)
                     case .app:
                         HStack {
-                            Text(form.game.target.isEmpty ? "Aucune application choisie" : form.game.target)
+                            Text(form.game.target.isEmpty ? String(localized: "Aucune application choisie") : form.game.target)
                                 .lineLimit(1).truncationMode(.middle).foregroundStyle(.secondary)
                             Spacer()
                             Button("Choisir…") { form.chooseApp() }

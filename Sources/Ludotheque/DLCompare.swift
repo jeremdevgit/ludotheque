@@ -60,7 +60,7 @@ final class DLCompareStore: ObservableObject {
         }
         if cachedOnly { return }
         loadingIndex = true
-        TaskCenter.shared.begin("dlcindex", "Catalogue DLCompare")
+        TaskCenter.shared.begin("dlcindex", String(localized: "Catalogue DLCompare"))
         defer { loadingIndex = false; TaskCenter.shared.end("dlcindex") }
         guard let (d, r) = try? await HTTP.raw("https://www.dlcompare.fr/sitemap.xml", headers: ["User-Agent": Self.headers["User-Agent"]!]),
               r.statusCode == 200 else { return }
@@ -184,14 +184,14 @@ final class DLCompareStore: ObservableObject {
     func refreshTracked() async {
         guard !refreshing, !tracked.isEmpty else { return }
         refreshing = true
-        TaskCenter.shared.begin("dlc", "Prix des clés (DLCompare)")
+        TaskCenter.shared.begin("dlc", String(localized: "Prix des clés (DLCompare)"))
         defer { refreshing = false; TaskCenter.shared.end("dlc") }
         for (i, t) in tracked.enumerated() {
             TaskCenter.shared.progress("dlc", i, tracked.count, t.game.title)
             let before = t.best
             let top = await loadOffers(t.game)
             if let b = before, let now = top.first?.price, now < b - 0.01 {
-                Notifier.post("Baisse de prix : \(realTitle(t.game))", String(format: "%.2f € chez %@ (avant %.2f €)", now, top.first!.shop, b), id: "dlc-\(t.id)-\(now)")
+                Notifier.post(String(localized: "Baisse de prix : \(realTitle(t.game))"), String(format: NSLocalizedString("%.2f € chez %@ (avant %.2f €)", comment: ""), now, top.first!.shop, b), id: "dlc-\(t.id)-\(now)")
             }
             try? await Task.sleep(for: .seconds(1))
         }

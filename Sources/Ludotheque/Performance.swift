@@ -168,10 +168,10 @@ struct MacSpecs {
         }
         if let n = gpuCores, let f = d.gpuMHz { d.tflops = Double(n) * 128 * 2 * Double(f) / 1_000_000 }   // FP32 ALUs × FMA
         switch ProcessInfo.processInfo.thermalState {
-        case .nominal: d.thermal = "Normale"
-        case .fair: d.thermal = "Tiède"
-        case .serious: d.thermal = "Chaude (performances réduites)"
-        case .critical: d.thermal = "Critique"
+        case .nominal: d.thermal = String(localized: "Normale")
+        case .fair: d.thermal = String(localized: "Tiède")
+        case .serious: d.thermal = String(localized: "Chaude (performances réduites)")
+        case .critical: d.thermal = String(localized: "Critique")
         @unknown default: d.thermal = ""
         }
         return d
@@ -287,7 +287,7 @@ struct Requirements: Codable {
     var recGPU: String?
     var minRAM: Int?
     var recRAM: Int?
-    var source: String?          // "PCGamingWiki", "Steam", "GOG", "Estimation émulation"
+    var source: String?          // "PCGamingWiki", "Steam", "GOG", String(localized: "Estimation émulation")
     var fetchedAt: Date?
     var estMin: Int?             // direct index (emulation estimates)
     var estRec: Int?
@@ -303,11 +303,11 @@ enum Verdict: Int, Comparable {
 
     var label: String {
         switch self {
-        case .unknown: "Inconnu"
-        case .insufficient: "Insuffisant"
-        case .low: "Jouable (réglages bas)"
-        case .smooth1080: "Fluide \(PerfTarget.minimum.label)"
-        case .smooth1440: "Recommandé \(PerfTarget.recommended.label)"
+        case .unknown: String(localized: "Inconnu")
+        case .insufficient: String(localized: "Insuffisant")
+        case .low: String(localized: "Jouable (réglages bas)")
+        case .smooth1080: String(localized: "Fluide \(PerfTarget.minimum.label)")
+        case .smooth1440: String(localized: "Recommandé \(PerfTarget.recommended.label)")
         }
     }
     var symbol: String {
@@ -394,7 +394,7 @@ final class PerfStore: ObservableObject {
         let todo = groups.filter { g in reqs[g.key] == nil && !queued.contains(g.key) }
         queue += todo
         guard !queue.isEmpty else { return }
-        await TaskCenter.shared.runAndWait("perf", "Recherche des performances") { [self] in
+        await TaskCenter.shared.runAndWait("perf", String(localized: "Recherche des performances")) { [self] in
             var done = 0
             defer { flushPending(); progress = nil; Store<[String: Requirements]>.save("requirements.json", reqs) }
             while !queue.isEmpty, !Task.isCancelled {
@@ -512,7 +512,7 @@ final class PerfStore: ObservableObject {
             ("3ds", 20, 40), ("portable", 15, 30), ("playstation", 5, 10), ("64", 5, 12), ("ds", 5, 10),
         ]
         let (mn, rc) = table.first { sys.contains($0.0) }.map { ($0.1, $0.2) } ?? (2, 4)
-        return Requirements(minRAM: 4, recRAM: 8, source: "Estimation émulation", fetchedAt: Date(), estMin: mn, estRec: rc)
+        return Requirements(minRAM: 4, recRAM: 8, source: String(localized: "Estimation émulation"), fetchedAt: Date(), estMin: mn, estRec: rc)
     }
 
     /// Extracts "Graphics:" and "Memory:" from Steam's HTML requirement block.

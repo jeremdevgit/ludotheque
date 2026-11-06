@@ -19,7 +19,7 @@ final class EmulatorsModel: ObservableObject {
     }
 
     func add(_ preset: EmulatorPreset?) {
-        let e = Emulator(name: preset?.name ?? "Nouvel émulateur", appPath: "", system: preset?.system ?? "",
+        let e = Emulator(name: preset?.name ?? String(localized: "Nouvel émulateur"), appPath: "", system: preset?.system ?? "",
                          extensions: preset?.extensions ?? [], arguments: preset?.arguments ?? "{rom}")
         list.append(e)
         selection = e.id
@@ -61,7 +61,7 @@ struct EmulatorsView: View {
                     Spacer()
                     Button("Détecter") {
                         let n = model.detect()
-                        lib.flash(n == 0 ? "Aucun nouvel émulateur trouvé" : "\(n) émulateur(s) ajouté(s)")
+                        lib.flash(n == 0 ? String(localized: "Aucun nouvel émulateur trouvé") : String(localized: "\(n) émulateur(s) ajouté(s)"))
                     }.controlSize(.small)
                 }.padding(6)
             }
@@ -85,7 +85,7 @@ struct EmulatorsView: View {
             TextField("Nom", text: e.name)
             LabeledContent("Application") {
                 HStack {
-                    Text(e.wrappedValue.appPath.isEmpty ? "Aucune" : e.wrappedValue.appPath).lineLimit(1).truncationMode(.middle).foregroundStyle(.secondary)
+                    Text(e.wrappedValue.appPath.isEmpty ? String(localized: "Aucune") : e.wrappedValue.appPath).lineLimit(1).truncationMode(.middle).foregroundStyle(.secondary)
                     Button("Choisir…") { if let p = pick(app: true) { e.wrappedValue.appPath = p } }
                 }
             }
@@ -95,7 +95,7 @@ struct EmulatorsView: View {
             }
             LabeledContent("Dossier des ROM") {
                 HStack {
-                    Text(e.wrappedValue.romFolder.isEmpty ? "Aucun" : e.wrappedValue.romFolder).lineLimit(1).truncationMode(.middle).foregroundStyle(.secondary)
+                    Text(e.wrappedValue.romFolder.isEmpty ? String(localized: "Aucun") : e.wrappedValue.romFolder).lineLimit(1).truncationMode(.middle).foregroundStyle(.secondary)
                     Button("Choisir…") { if let p = pick(app: false) { e.wrappedValue.romFolder = p } }
                 }
             }

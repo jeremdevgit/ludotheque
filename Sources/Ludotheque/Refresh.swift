@@ -9,32 +9,32 @@ enum RefreshOp: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .library: "Bibliothèque locale"
-        case .platforms: "Plateformes connectées"
-        case .freeGames: "Jeux et objets gratuits"
-        case .wishlist: "Prix de la liste de souhaits"
-        case .keys: "Prix des clés suivies (DLCompare)"
-        case .achievements: "Succès"
-        case .performance: "Performances des jeux jouables"
-        case .genres: "Genres et années (statistiques)"
-        case .news: "Actualités des jeux"
-        case .anticheat: "Base anti-triche (jeux Windows)"
-        case .dlcIndex: "Catalogue DLCompare"
+        case .library: String(localized: "Bibliothèque locale")
+        case .platforms: String(localized: "Plateformes connectées")
+        case .freeGames: String(localized: "Jeux et objets gratuits")
+        case .wishlist: String(localized: "Prix de la liste de souhaits")
+        case .keys: String(localized: "Prix des clés suivies (DLCompare)")
+        case .achievements: String(localized: "Succès")
+        case .performance: String(localized: "Performances des jeux jouables")
+        case .genres: String(localized: "Genres et années (statistiques)")
+        case .news: String(localized: "Actualités des jeux")
+        case .anticheat: String(localized: "Base anti-triche (jeux Windows)")
+        case .dlcIndex: String(localized: "Catalogue DLCompare")
         }
     }
     var detail: String {
         switch self {
-        case .library: "Jeux installés et bibliothèques locales (Steam, Epic, GOG Galaxy, Battle.net, apps Mac, émulateurs…), titres et jaquettes."
-        case .platforms: "Synchronise les comptes connectés dans Gestion des plateformes (Steam, Epic, GOG, Xbox, PlayStation…)."
-        case .freeGames: "Jeux, DLC et objets gratuits à récupérer (GamerPower)."
-        case .wishlist: "Prix Steam et meilleures offres (CheapShark) des jeux de ta liste de souhaits."
-        case .keys: "Les 10 clés CD les moins chères des jeux que tu suis."
-        case .achievements: "Steam, Xbox et PlayStation (comptes connectés). Peut être long."
-        case .performance: "Configurations requises des jeux jouables pas encore analysés (150 par passage)."
-        case .genres: "Genres et années de sortie de tes 150 jeux les plus joués."
-        case .news: "Annonces et notes de patch de tes jeux récents (Steam)."
-        case .anticheat: "Compatibilité anti-triche (AreWeAntiCheatYet), pour l'onglet Jeux Windows."
-        case .dlcIndex: "Liste des jeux DLCompare, nécessaire à la recherche de prix (≈ 5 Mo)."
+        case .library: String(localized: "Jeux installés et bibliothèques locales (Steam, Epic, GOG Galaxy, Battle.net, apps Mac, émulateurs…), titres et jaquettes.")
+        case .platforms: String(localized: "Synchronise les comptes connectés dans Gestion des plateformes (Steam, Epic, GOG, Xbox, PlayStation…).")
+        case .freeGames: String(localized: "Jeux, DLC et objets gratuits à récupérer (GamerPower).")
+        case .wishlist: String(localized: "Prix Steam et meilleures offres (CheapShark) des jeux de ta liste de souhaits.")
+        case .keys: String(localized: "Les 10 clés CD les moins chères des jeux que tu suis.")
+        case .achievements: String(localized: "Steam, Xbox et PlayStation (comptes connectés). Peut être long.")
+        case .performance: String(localized: "Configurations requises des jeux jouables pas encore analysés (150 par passage).")
+        case .genres: String(localized: "Genres et années de sortie de tes 150 jeux les plus joués.")
+        case .news: String(localized: "Annonces et notes de patch de tes jeux récents (Steam).")
+        case .anticheat: String(localized: "Compatibilité anti-triche (AreWeAntiCheatYet), pour l'onglet Jeux Windows.")
+        case .dlcIndex: String(localized: "Liste des jeux DLCompare, nécessaire à la recherche de prix (≈ 5 Mo).")
         }
     }
     var symbol: String {
@@ -79,41 +79,41 @@ final class RefreshCenter: ObservableObject {
             lastRun[op] = Date()
             UserDefaults.standard.set(Date(), forKey: "refresh.\(op.rawValue).date")
         }
-        var msg = "Terminé"
+        var msg = String(localized: "Terminé")
         switch op {
         case .library:
             await lib.refresh(sync: false)
-            msg = "\(lib.groups.count) jeux"
+            msg = String(localized: "\(lib.groups.count) jeux")
         case .platforms:
             let connected = Integrations.all.filter(\.isConnected)
-            if connected.isEmpty { msg = "Aucun compte connecté" } else { await lib.runSync(connected); msg = "\(connected.count) plateforme(s) synchronisée(s)" }
+            if connected.isEmpty { msg = String(localized: "Aucun compte connecté") } else { await lib.runSync(connected); msg = String(localized: "\(connected.count) plateforme(s) synchronisée(s)") }
         case .freeGames:
             await FreeGamesStore.shared.refresh()
-            msg = "\(FreeGamesStore.shared.active.count) jeux · \(FreeGamesStore.shared.activeLoot.count) objets"
+            msg = String(localized: "\(FreeGamesStore.shared.active.count) jeux · \(FreeGamesStore.shared.activeLoot.count) objets")
         case .wishlist:
             await WishlistStore.shared.refresh()
-            msg = "\(WishlistStore.shared.items.count) jeux suivis"
+            msg = String(localized: "\(WishlistStore.shared.items.count) jeux suivis")
         case .keys:
             await DLCompareStore.shared.refreshTracked()
-            msg = "\(DLCompareStore.shared.tracked.count) jeux suivis"
+            msg = String(localized: "\(DLCompareStore.shared.tracked.count) jeux suivis")
         case .achievements:
-            if AchievementHub.shared.connected.isEmpty { msg = "Aucun compte connecté (Steam, Xbox, PlayStation)" }
-            else { await AchievementHub.shared.refresh(lib, replace: false); msg = "\(AchievementHub.shared.items.count) jeux" }
+            if AchievementHub.shared.connected.isEmpty { msg = String(localized: "Aucun compte connecté (Steam, Xbox, PlayStation)") }
+            else { await AchievementHub.shared.refresh(lib, replace: false); msg = String(localized: "\(AchievementHub.shared.items.count) jeux") }
         case .performance:
             let missing = lib.groups.filter { g in g.games.contains { $0.launchKind == .installed || $0.launchKind == .installable } && PerfStore.shared.requirements(g) == nil }
             await PerfStore.shared.analyze(Array(missing.prefix(150)))
-            msg = missing.isEmpty ? "Tout est déjà analysé" : "\(min(150, missing.count)) jeux analysés"
+            msg = missing.isEmpty ? String(localized: "Tout est déjà analysé") : String(localized: "\(min(150, missing.count)) jeux analysés")
         case .genres:
             await StatsModel().fetchDetails(lib)
         case .news:
             await NewsStore.shared.refresh(lib)
-            msg = "\(NewsStore.shared.items.count) actualités"
+            msg = String(localized: "\(NewsStore.shared.items.count) actualités")
         case .anticheat:
             await WindowsGaming.shared.loadAntiCheat(force: true)
-            msg = "\(WindowsGaming.shared.antiCheat.count) jeux référencés"
+            msg = String(localized: "\(WindowsGaming.shared.antiCheat.count) jeux référencés")
         case .dlcIndex:
             await DLCompareStore.shared.ensureIndex(force: true)
-            msg = "\(DLCompareStore.shared.indexCount) jeux"
+            msg = String(localized: "\(DLCompareStore.shared.indexCount) jeux")
         }
         lastMessage[op] = msg
     }
@@ -121,14 +121,14 @@ final class RefreshCenter: ObservableObject {
     /// "Tout actualiser": the selected operations, the cheap ones first.
     func runAll(_ lib: Library, only: [RefreshOp]? = nil) async {
         let ops = only ?? RefreshOp.allCases.filter(included)
-        TaskCenter.shared.begin("refreshAll", "Actualisation")
+        TaskCenter.shared.begin("refreshAll", String(localized: "Actualisation"))
         defer { TaskCenter.shared.end("refreshAll") }
         for (i, op) in ops.enumerated() {
             TaskCenter.shared.progress("refreshAll", i, ops.count, op.title)
             await run(op, lib)
         }
         lib.markFullRefresh()
-        lib.flash("Actualisation terminée")
+        lib.flash(String(localized: "Actualisation terminée"))
     }
 }
 
@@ -288,7 +288,7 @@ struct OnboardingView: View {
     @AppStorage("refreshAtLaunch") private var atLaunch = false
     let close: () -> Void
 
-    private let steps = ["Bienvenue", "Plateformes", "Comptes", "Actualisations", "Interface", "C'est parti"]
+    private let steps = [String(localized: "Bienvenue"), String(localized: "Plateformes"), String(localized: "Comptes"), String(localized: "Actualisations"), String(localized: "Interface"), String(localized: "C'est parti")]
 
     var body: some View {
         VStack(spacing: 0) {
@@ -390,10 +390,10 @@ struct OnboardingView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Ton interface").font(.title2.bold())
             HStack(spacing: 14) {
-                choice("Complète", "Tous les onglets : bibliothèque, boutiques, succès, statistiques, émulateurs, jeux Windows…", "square.grid.3x3.fill") {
+                choice(String(localized: "Complète"), String(localized: "Tous les onglets : bibliothèque, boutiques, succès, statistiques, émulateurs, jeux Windows…"), "square.grid.3x3.fill") {
                     for k in UIKeys.all where k.hasPrefix("ui.") { UserDefaults.standard.removeObject(forKey: k) }
                 }
-                choice("Essentielle", "Ta bibliothèque, les jeux jouables et le bouton Actualiser. Le reste se réactive dans Options → Interface.", "square.fill") {
+                choice(String(localized: "Essentielle"), String(localized: "Ta bibliothèque, les jeux jouables et le bouton Actualiser. Le reste se réactive dans Options → Interface."), "square.fill") {
                     UserDefaults.standard.set([SidebarItem.profile, .statistics, .achievements, .performance, .emulators, .windows, .search, .freeLoot,
                                                .installable, .cloud].map(\.rawValue).joined(separator: ","), forKey: UIKeys.hiddenSidebar)
                     UserDefaults.standard.set([SidebarSection.presets, .stores].map(\.rawValue).joined(separator: ","), forKey: UIKeys.hiddenSections)

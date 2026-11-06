@@ -72,7 +72,7 @@ enum HTTP {
 
     static func raw(_ url: String, method: String = "GET", headers: [String: String] = [:], form f: [String: String]? = nil,
                     jsonBody: [String: Any]? = nil, session: URLSession = .shared) async throws -> (Data, HTTPURLResponse) {
-        guard let u = URL(string: url) else { throw SyncError("URL invalide : \(url)") }
+        guard let u = URL(string: url) else { throw SyncError(String(localized: "URL invalide : \(url)")) }
         var req = URLRequest(url: u, timeoutInterval: 30)
         req.httpMethod = method
         req.setValue("Ludotheque/1.0 (macOS game launcher)", forHTTPHeaderField: "User-Agent")
@@ -86,7 +86,7 @@ enum HTTP {
             req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
         let (d, r) = try await session.data(for: req)
-        guard let http = r as? HTTPURLResponse else { throw SyncError("Réponse invalide") }
+        guard let http = r as? HTTPURLResponse else { throw SyncError(String(localized: "Réponse invalide")) }
         return (d, http)
     }
 
@@ -94,10 +94,10 @@ enum HTTP {
                      jsonBody: [String: Any]? = nil) async throws -> [String: Any] {
         let (d, r) = try await raw(url, method: method, headers: headers, form: f, jsonBody: jsonBody)
         guard (200..<300).contains(r.statusCode) else {
-            if r.statusCode == 401 || r.statusCode == 403 { throw SyncError("Accès refusé (\(r.statusCode)) — identifiants invalides ou expirés") }
-            throw SyncError("Erreur HTTP \(r.statusCode) sur \(r.url?.host ?? url)")
+            if r.statusCode == 401 || r.statusCode == 403 { throw SyncError(String(localized: "Accès refusé (\(r.statusCode)) — identifiants invalides ou expirés")) }
+            throw SyncError(String(localized: "Erreur HTTP \(r.statusCode) sur \(r.url?.host ?? url)"))
         }
-        guard let o = try? JSONSerialization.jsonObject(with: d) as? [String: Any] else { throw SyncError("Réponse illisible de \(r.url?.host ?? url)") }
+        guard let o = try? JSONSerialization.jsonObject(with: d) as? [String: Any] else { throw SyncError(String(localized: "Réponse illisible de \(r.url?.host ?? url)")) }
         return o
     }
 }
@@ -147,19 +147,19 @@ enum Integrations {
     /// What we read on disk for each platform, shown in the Integrations panel.
     static func local(_ p: Platform) -> String? {
         switch p {
-        case .steam: "Jeux installés, bibliothèque, temps de jeu et jaquettes lus depuis Steam."
-        case .epic: "Jeux installés et catalogue lus depuis l'Epic Games Launcher (et Heroic)."
-        case .gog: "Base de données de GOG Galaxy (jeux installés, temps de jeu)."
-        case .battlenet: "Jeux installés et lancement direct via Battle.net."
-        case .ea: "Jeux installés dans /Applications/EA Games."
-        case .itch: "Base de l'app itch (jeux possédés et installés)."
-        case .amazon: "Bibliothèque Amazon Prime Gaming via Heroic Games Launcher."
-        case .appstore: "Jeux App Store, Apple Arcade et jeux iPhone/iPad installés (détectés via Spotlight)."
-        case .mac: "Applications de la catégorie Jeux dans /Applications et ~/Applications."
-        case .xbox: "Minecraft Launcher et Prism Launcher (Minecraft appartient à Microsoft)."
-        case .crossover: "Raccourcis CrossOver / Whisky (~/Applications/CrossOver)."
-        case .playcover: "Applications iOS installées dans PlayCover."
-        case .riot: "Riot Client et League of Legends (client Mac natif) dans /Applications."
+        case .steam: String(localized: "Jeux installés, bibliothèque, temps de jeu et jaquettes lus depuis Steam.")
+        case .epic: String(localized: "Jeux installés et catalogue lus depuis l'Epic Games Launcher (et Heroic).")
+        case .gog: String(localized: "Base de données de GOG Galaxy (jeux installés, temps de jeu).")
+        case .battlenet: String(localized: "Jeux installés et lancement direct via Battle.net.")
+        case .ea: String(localized: "Jeux installés dans /Applications/EA Games.")
+        case .itch: String(localized: "Base de l'app itch (jeux possédés et installés).")
+        case .amazon: String(localized: "Bibliothèque Amazon Prime Gaming via Heroic Games Launcher.")
+        case .appstore: String(localized: "Jeux App Store, Apple Arcade et jeux iPhone/iPad installés (détectés via Spotlight).")
+        case .mac: String(localized: "Applications de la catégorie Jeux dans /Applications et ~/Applications.")
+        case .xbox: String(localized: "Minecraft Launcher et Prism Launcher (Minecraft appartient à Microsoft).")
+        case .crossover: String(localized: "Raccourcis CrossOver / Whisky (~/Applications/CrossOver).")
+        case .playcover: String(localized: "Applications iOS installées dans PlayCover.")
+        case .riot: String(localized: "Riot Client et League of Legends (client Mac natif) dans /Applications.")
         default: nil
         }
     }
@@ -183,7 +183,7 @@ enum Integrations {
             ApiStore.save(i.platform, games)
             d.set(Date(), forKey: "sync.\(i.platform.rawValue).date")
             d.removeObject(forKey: "sync.\(i.platform.rawValue).error")
-            return "\(games.count) jeux importés depuis \(i.platform.name)"
+            return String(localized: "\(games.count) jeux importés depuis \(i.platform.name)")
         } catch {
             let m = error.localizedDescription
             d.set(m, forKey: "sync.\(i.platform.rawValue).error")

@@ -1,5 +1,21 @@
 # Historique des versions
 
+## 1.2.0 — 2026-11-06
+
+**English**
+
+- **8 languages**: English, French, Spanish, German, Italian, Portuguese, Chinese and Japanese. Your Mac's language is picked automatically; *Options › General › Language* lets you switch (applies at the next launch, with a Relaunch button).
+- Store descriptions and Xbox, PlayStation and GOG data are requested in the chosen language.
+- Exports (HTML, profile CSV and Markdown) follow the chosen language.
+- Building from source fixed (`Package.swift` manifest).
+
+**Français**
+
+- **8 langues** : français, anglais, espagnol, allemand, italien, portugais, chinois et japonais. La langue du Mac est choisie automatiquement ; *Options › Général › Langue* permet d'en changer (au prochain lancement, avec un bouton Relancer).
+- Descriptions des boutiques et données Xbox, PlayStation et GOG demandées dans la langue choisie.
+- Exports (HTML, CSV et Markdown du profil) dans la langue choisie.
+- Compilation depuis les sources corrigée (manifeste `Package.swift`).
+
 ## 1.1.0 — 2026-11-05 — Publication open source
 
 - Code publié sous licence GNU GPL v3 ou ultérieure.

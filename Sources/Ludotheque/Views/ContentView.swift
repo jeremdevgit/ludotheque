@@ -55,7 +55,7 @@ struct DetailRoot: View {
         if show(.view) { ToolbarItem { DisplayMenu() } }
         if show(.random) {
             ToolbarItem {
-                Button { if lib.pickRandom() == nil { lib.flash("Aucun jeu dans cette vue") } } label: {
+                Button { if lib.pickRandom() == nil { lib.flash(String(localized: "Aucun jeu dans cette vue")) } } label: {
                     Label("Jeu au hasard", systemImage: "dice")
                 }.help("Choisir un jeu au hasard dans la vue actuelle")
             }
@@ -204,7 +204,7 @@ struct FilterBanner: View {
         if hidden > 0 {
             HStack(spacing: 8) {
                 Image(systemName: "line.3.horizontal.decrease.circle.fill").foregroundStyle(Color.accentColor)
-                Text("\(hidden) jeu\(hidden > 1 ? "x" : "") masqué\(hidden > 1 ? "s" : "") par \(lib.filters.activeCount > 0 ? "les filtres" : "la recherche")")
+                Text(lib.filters.activeCount > 0 ? (hidden > 1 ? String(localized: "\(hidden) jeux masqués par les filtres") : String(localized: "1 jeu masqué par les filtres")) : (hidden > 1 ? String(localized: "\(hidden) jeux masqués par la recherche") : String(localized: "1 jeu masqué par la recherche")))
                 Spacer()
                 Button("Réinitialiser") { lib.filters = Filters(); lib.search = "" }.controlSize(.small)
             }
@@ -376,13 +376,13 @@ struct Sidebar: View {
 
     private func askPresetName() {
         let alert = NSAlert()
-        alert.messageText = "Enregistrer la vue actuelle"
-        alert.informativeText = "La vue, les filtres et le tri actuels seront enregistrés."
+        alert.messageText = String(localized: "Enregistrer la vue actuelle")
+        alert.informativeText = String(localized: "La vue, les filtres et le tri actuels seront enregistrés.")
         let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 260, height: 24))
-        field.placeholderString = "Nom de la vue (ex. Coop sur Mac)"
+        field.placeholderString = String(localized: "Nom de la vue (ex. Coop sur Mac)")
         alert.accessoryView = field
-        alert.addButton(withTitle: "Enregistrer")
-        alert.addButton(withTitle: "Annuler")
+        alert.addButton(withTitle: String(localized: "Enregistrer"))
+        alert.addButton(withTitle: String(localized: "Annuler"))
         alert.window.initialFirstResponder = field
         if alert.runModal() == .alertFirstButtonReturn, !field.stringValue.isEmpty { lib.savePreset(named: field.stringValue) }
     }
@@ -586,10 +586,10 @@ struct GroupTile: View {
     private func subtitle(_ k: LaunchKind) -> String {
         var parts = [String]()
         switch k {
-        case .installed: parts.append("Installé")
-        case .installable: parts.append("À installer")
-        case .cloud: parts.append("Cloud")
-        case .none: if group.games.count == 1 && group.primary.macNative == false { parts.append("Pas sur Mac") }
+        case .installed: parts.append(String(localized: "Installé"))
+        case .installable: parts.append(String(localized: "À installer"))
+        case .cloud: parts.append(String(localized: "Cloud"))
+        case .none: if group.games.count == 1 && group.primary.macNative == false { parts.append(String(localized: "Pas sur Mac")) }
         }
         let m = lib.playtime(group)
         if m > 0 { parts.append(m >= 60 ? "\(m / 60) h" : "\(m) min") }
@@ -670,27 +670,27 @@ struct GameList: View {
 
     private static func columns(_ lib: Library) -> [GameTableColumn] {
         [
-            GameTableColumn(id: "title", title: "Titre", width: 320, minWidth: 220) { g in
+            GameTableColumn(id: "title", title: String(localized: "Titre"), width: 320, minWidth: 220) { g in
                 GameCell(text: lib.title(g), star: lib.isFavorite(g), cover: lib.coverGame(g))
             },
-            GameTableColumn(id: "platforms", title: "Plateformes", width: 110, minWidth: 80) { g in
+            GameTableColumn(id: "platforms", title: String(localized: "Plateformes"), width: 110, minWidth: 80) { g in
                 GameCell(logos: g.bestPerPlatform.prefix(4).map { ($0.platform, $0.launchKind == .none) })
             },
-            GameTableColumn(id: "availability", title: "Disponibilité", width: 150, minWidth: 100) { g in
+            GameTableColumn(id: "availability", title: String(localized: "Disponibilité"), width: 150, minWidth: 100) { g in
                 GameCell(text: g.primary.launchKind.label, symbol: g.primary.launchKind.symbol)
             },
-            GameTableColumn(id: "status", title: "Statut", width: 130, minWidth: 90) { g in
+            GameTableColumn(id: "status", title: String(localized: "Statut"), width: 130, minWidth: 90) { g in
                 let s = lib.statusOf(g)
                 return GameCell(text: s.label, color: NSColor(s.color), symbol: s.symbol)
             },
-            GameTableColumn(id: "rating", title: "Note", width: 60, minWidth: 50, maxWidth: 90) { g in
+            GameTableColumn(id: "rating", title: String(localized: "Note"), width: 60, minWidth: 50, maxWidth: 90) { g in
                 GameCell(text: String(repeating: "★", count: lib.entry(g.key).rating ?? 0), color: .systemYellow)
             },
-            GameTableColumn(id: "playtime", title: "Temps de jeu", width: 100, minWidth: 80) { g in
+            GameTableColumn(id: "playtime", title: String(localized: "Temps de jeu"), width: 100, minWidth: 80) { g in
                 let m = lib.playtime(g)
                 return GameCell(text: m == 0 ? "—" : (m >= 60 ? "\(m / 60) h \(m % 60) min" : "\(m) min"), monospaced: true)
             },
-            GameTableColumn(id: "last", title: "Dernière partie", width: 110, minWidth: 90) { g in
+            GameTableColumn(id: "last", title: String(localized: "Dernière partie"), width: 110, minWidth: 90) { g in
                 GameCell(text: lib.lastPlayed(g)?.formatted(date: .abbreviated, time: .omitted) ?? "—")
             },
         ]

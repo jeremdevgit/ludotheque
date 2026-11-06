@@ -58,7 +58,7 @@ struct PerformanceView: View {
             .scrollBounceBehavior(.basedOnSize)
             .frame(height: min(vm.headerHeight, geo.size.height * 0.55))
             NativeGameTable(lib: lib, groups: rows, columns: columns, autosaveName: "perfTable",
-                            extraMenu: { g in [TileMenu.item("Rechercher à nouveau") { Task { await PerfStore.shared.searchAgain([g]) } }] },
+                            extraMenu: { g in [TileMenu.item(String(localized: "Rechercher à nouveau")) { Task { await PerfStore.shared.searchAgain([g]) } }] },
                             onOpen: { g in Library.shared.launch(g.primary) })
         }
         }
@@ -67,29 +67,29 @@ struct PerformanceView: View {
     private var columns: [GameTableColumn] {
         let perf = perf, lib = lib, mac = mac
         return [
-            GameTableColumn(id: "title", title: "Jeu", width: 280, minWidth: 220) { g in
-                GameCell(text: lib.title(g), secondary: g.primary.macNative == true ? "Natif Mac" : "Via traduction (CrossOver / GPTK)",
+            GameTableColumn(id: "title", title: String(localized: "Jeu"), width: 280, minWidth: 220) { g in
+                GameCell(text: lib.title(g), secondary: g.primary.macNative == true ? String(localized: "Natif Mac") : String(localized: "Via traduction (CrossOver / GPTK)"),
                          cover: lib.coverGame(g))
             },
-            GameTableColumn(id: "min", title: "Minimum (\(PerfTarget.minimum.label))", width: 150, minWidth: 120) { g in
+            GameTableColumn(id: "min", title: String(localized: "Minimum (\(PerfTarget.minimum.label))"), width: 150, minWidth: 120) { g in
                 Self.verdictCell(g, perf: perf, need: 1)
             },
-            GameTableColumn(id: "rec", title: "Recommandé (\(PerfTarget.recommended.label))", width: 160, minWidth: 120) { g in
+            GameTableColumn(id: "rec", title: String(localized: "Recommandé (\(PerfTarget.recommended.label))"), width: 160, minWidth: 120) { g in
                 Self.verdictCell(g, perf: perf, need: 2)
             },
-            GameTableColumn(id: "gpu", title: "Carte graphique recommandée", width: 260, minWidth: 160) { g in
+            GameTableColumn(id: "gpu", title: String(localized: "Carte graphique recommandée"), width: 260, minWidth: 160) { g in
                 let q = perf.requirements(g)
                 return GameCell(text: q?.recGPU ?? q?.minGPU ?? "—", color: .secondaryLabelColor, tooltip: q?.recGPU)
             },
             GameTableColumn(id: "ram", title: "RAM", width: 60, minWidth: 50, maxWidth: 90) { g in
                 let q = perf.requirements(g)
-                return GameCell(text: q?.recRAM.map { "\($0) Go" } ?? q?.minRAM.map { "\($0) Go" } ?? "—",
+                return GameCell(text: q?.recRAM.map { String(localized: "\($0) Go") } ?? q?.minRAM.map { String(localized: "\($0) Go") } ?? "—",
                                 color: (q?.recRAM ?? q?.minRAM ?? 0) > mac.memoryGB ? .systemRed : .secondaryLabelColor)
             },
-            GameTableColumn(id: "source", title: "Source", width: 110, minWidth: 80) { g in
+            GameTableColumn(id: "source", title: String(localized: "Source"), width: 110, minWidth: 80) { g in
                 let q = perf.requirements(g)
                 return GameCell(text: q?.source ?? "—", color: .secondaryLabelColor,
-                                tooltip: q?.fetchedAt.map { "Recherché le \($0.formatted())" })
+                                tooltip: q?.fetchedAt.map { String(localized: "Recherché le \($0.formatted())") })
             },
         ]
     }
@@ -99,8 +99,8 @@ struct PerformanceView: View {
             Color.clear.frame(height: 0).onAppear { details.load() }
             macCard.padding(16)
             HStack(spacing: 18) {
-                TargetPicker("Minimum", key: "perfMin", height: 1080, fps: 60)
-                TargetPicker("Recommandé", key: "perfRec", height: 1440, fps: 144)
+                TargetPicker(String(localized: "Minimum"), key: "perfMin", height: 1080, fps: 60)
+                TargetPicker(String(localized: "Recommandé"), key: "perfRec", height: 1440, fps: 144)
                 Spacer()
             }
             .padding(.horizontal, 16).padding(.bottom, 8)
@@ -125,9 +125,9 @@ struct PerformanceView: View {
                     Button {
                         if groups.count > 25 {
                             let a = NSAlert()
-                            a.messageText = "Rechercher à nouveau \(groups.count) jeux ?"
-                            a.informativeText = "Les résultats de cette vue seront effacés puis recherchés à nouveau (environ \(max(1, groups.count / 120)) min). Astuce : filtre la vue pour cibler quelques jeux."
-                            a.addButton(withTitle: "Rechercher"); a.addButton(withTitle: "Annuler")
+                            a.messageText = String(localized: "Rechercher à nouveau \(groups.count) jeux ?")
+                            a.informativeText = String(localized: "Les résultats de cette vue seront effacés puis recherchés à nouveau (environ \(max(1, groups.count / 120)) min). Astuce : filtre la vue pour cibler quelques jeux.")
+                            a.addButton(withTitle: String(localized: "Rechercher")); a.addButton(withTitle: String(localized: "Annuler"))
                             guard a.runModal() == .alertFirstButtonReturn else { return }
                         }
                         Task { await perf.searchAgain(groups) }
@@ -147,11 +147,11 @@ struct PerformanceView: View {
     @MainActor private static func verdictCell(_ g: GameGroup, perf: PerfStore, need: Int) -> GameCell {
         let req = perf.requirements(g)
         let verdict = PerfMath.verdict(req, game: g.primary)
-        if verdict == .unknown { return GameCell(text: req == nil ? "Non analysé" : "Inconnu", color: .secondaryLabelColor) }
+        if verdict == .unknown { return GameCell(text: req == nil ? String(localized: "Non analysé") : String(localized: "Inconnu"), color: .secondaryLabelColor) }
         let ok = need == 1 ? verdict >= .smooth1080 : verdict >= .smooth1440
         let shown: Verdict = ok ? (need == 1 ? .smooth1080 : .smooth1440) : (verdict == .insufficient ? .insufficient : (need == 1 ? verdict : .low))
         let color = ok ? Verdict.smooth1080.color : shown.color
-        return GameCell(text: ok ? "Oui" : (shown == .insufficient ? "Non" : "Réglages bas"), color: color,
+        return GameCell(text: ok ? String(localized: "Oui") : (shown == .insufficient ? String(localized: "Non") : String(localized: "Réglages bas")), color: color,
                         symbol: ok ? "checkmark.circle.fill" : shown.symbol)
     }
 
@@ -161,25 +161,25 @@ struct PerformanceView: View {
     private var macCard: some View {
         let d = details.details ?? MacSpecs.Details()
         let left: [(String, String)] = [
-            ("Modèle", d.model + (d.fanless ? " · sans ventilateur" : "")),
-            ("Processeur", "\(mac.performanceCores) perf.\(d.pCoreMHz.map { " @ \(ghz($0))" } ?? "") + \(mac.efficiencyCores) effic.\(d.eCoreMHz.map { " @ \(ghz($0))" } ?? "")"),
-            ("Cache L2", d.l2P.map { "\($0 >> 20) Mo perf.\(d.l2E.map { " · \($0 >> 20) Mo effic." } ?? "")" } ?? "—"),
-            ("Mémoire", "\(mac.memoryGB) Go \(d.memoryType)\(d.memorySpeed.map { "-\($0)" } ?? "")\(d.bandwidth.map { String(format: " · %.0f Go/s", $0) } ?? "")"),
-            ("Stockage", "\(d.ssd == true ? "SSD" : d.ssd == false ? "HDD" : "Disque")\(d.storageTotalGB.map { " · \($0) Go" } ?? "")\(d.storageFreeGB.map { " (\($0) libres)" } ?? "")"),
+            (String(localized: "Modèle"), d.model + (d.fanless ? String(localized: " · sans ventilateur") : "")),
+            (String(localized: "Processeur"), String(localized: "\(mac.performanceCores) perf.\(d.pCoreMHz.map { " @ \(ghz($0))" } ?? "") + \(mac.efficiencyCores) effic.\(d.eCoreMHz.map { " @ \(ghz($0))" } ?? "")")),
+            (String(localized: "Cache L2"), d.l2P.map { String(localized: "\($0 >> 20) Mo perf.") + (d.l2E.map { String(localized: " · \($0 >> 20) Mo effic.") } ?? "") } ?? "—"),
+            (String(localized: "Mémoire"), String(localized: "\(mac.memoryGB) Go") + " \(d.memoryType)\(d.memorySpeed.map { "-\($0)" } ?? "")\(d.bandwidth.map { String(format: NSLocalizedString(" · %.0f Go/s", comment: ""), $0) } ?? "")"),
+            (String(localized: "Stockage"), "\(d.ssd == true ? "SSD" : d.ssd == false ? "HDD" : String(localized: "Disque"))\(d.storageTotalGB.map { String(localized: " · \($0) Go") } ?? "")\(d.storageFreeGB.map { String(localized: " (\($0) Go libres)") } ?? "")"),
         ]
         let right: [(String, String)] = [
-            ("GPU", "\(mac.gpuCores.map { "\($0) cœurs" } ?? mac.gpuName)\(d.gpuMHz.map { " @ \($0) MHz" } ?? "")\(d.tflops.map { String(format: " · %.1f TFLOPS", $0) } ?? "")"),
-            ("Graphismes", "\(d.metal3 ? "Metal 3 · MetalFX" : "Metal 2")\(d.raytracing ? " · ray tracing matériel" : "")"),
-            ("Mémoire GPU", d.maxWorkingSetGB.map { String(format: "%.1f Go utilisables", $0) } ?? "—"),
-            ("Écran", "\(mac.screenWidth) × \(mac.screenHeight) · \(mac.refreshRate) Hz"),
-            ("Température", d.thermal.isEmpty ? "—" : d.thermal),
+            ("GPU", "\(mac.gpuCores.map { String(localized: "\($0) cœurs") } ?? mac.gpuName)\(d.gpuMHz.map { " @ \($0) MHz" } ?? "")\(d.tflops.map { String(format: " · %.1f TFLOPS", $0) } ?? "")"),
+            (String(localized: "Graphismes"), "\(d.metal3 ? "Metal 3 · MetalFX" : "Metal 2")\(d.raytracing ? String(localized: " · ray tracing matériel") : "")"),
+            (String(localized: "Mémoire GPU"), d.maxWorkingSetGB.map { String(format: NSLocalizedString("%.1f Go utilisables", comment: ""), $0) } ?? "—"),
+            (String(localized: "Écran"), "\(mac.screenWidth) × \(mac.screenHeight) · \(mac.refreshRate) Hz"),
+            (String(localized: "Température"), d.thermal.isEmpty ? "—" : d.thermal),
         ]
         return VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .center, spacing: 14) {
                 Image(systemName: "laptopcomputer").font(.system(size: 28)).foregroundStyle(Color.accentColor)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(mac.chip).font(.title2.bold())
-                    Text("\(mac.memoryGB) Go · \(mac.gpuCores.map { "GPU \($0) cœurs" } ?? mac.gpuName) · \(mac.equivalent)").font(.callout).foregroundStyle(.secondary)
+                    Text("\(mac.memoryGB) Go · \(mac.gpuCores.map { String(localized: "GPU \($0) cœurs") } ?? mac.gpuName) · \(mac.equivalent)").font(.callout).foregroundStyle(.secondary)
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 0) {
@@ -195,7 +195,7 @@ struct PerformanceView: View {
                     specGrid(left)
                     specGrid(right)
                 }
-                Text("Estimation : config recommandée ≈ 1080p 60 ; \(PerfTarget.recommended.label) demande ≈ ×\(String(format: "%.1f", PerfTarget.recommended.factor)). Jeux Windows : −40 % (traduction).\(mac.refreshRate < PerfTarget.recommended.fps ? " Ton écran est limité à \(mac.refreshRate) Hz." : "")\(d.fanless ? " Mac sans ventilateur : les performances baissent après quelques minutes de jeu intensif." : "")")
+                Text("Estimation : config recommandée ≈ 1080p 60 ; \(PerfTarget.recommended.label) demande ≈ ×\(String(format: "%.1f", PerfTarget.recommended.factor)). Jeux Windows : −40 % (traduction).\(mac.refreshRate < PerfTarget.recommended.fps ? String(localized: " Ton écran est limité à \(mac.refreshRate) Hz.") : "")\(d.fanless ? String(localized: " Mac sans ventilateur : les performances baissent après quelques minutes de jeu intensif.") : "")")
                     .font(.caption2).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -225,7 +225,7 @@ struct PerfBadge: View {
         let r = perf.requirements(group)
         let v = PerfMath.verdict(r, game: group.primary)
         HStack {
-            Label(v == .unknown && r == nil ? "Performances non analysées" : v.label, systemImage: v.symbol)
+            Label(v == .unknown && r == nil ? String(localized: "Performances non analysées") : v.label, systemImage: v.symbol)
                 .foregroundStyle(Color(v.color))
             Spacer()
             Button(r == nil ? "Rechercher" : "Rechercher à nouveau") { Task { await perf.searchAgain([group]) } }

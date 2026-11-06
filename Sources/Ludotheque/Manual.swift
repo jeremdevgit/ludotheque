@@ -8,10 +8,10 @@ struct ManualGame: Codable, Identifiable, Hashable {
         var id: String { rawValue }
         var label: String {
             switch self {
-            case .none: "Aucun"
-            case .app: "Application Mac"
-            case .url: "Lien / launcher"
-            case .cloud: "Cloud (streaming)"
+            case .none: String(localized: "Aucun")
+            case .app: String(localized: "Application Mac")
+            case .url: String(localized: "Lien / launcher")
+            case .cloud: String(localized: "Cloud (streaming)")
             }
         }
     }

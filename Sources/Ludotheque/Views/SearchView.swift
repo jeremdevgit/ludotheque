@@ -10,7 +10,7 @@ final class SearchModel: ObservableObject {
 
     func run() {
         results = DLCompareStore.shared.search(query)
-        if results.isEmpty { message = "Aucun jeu trouvé sur DLCompare pour « \(query) »." } else { message = nil }
+        if results.isEmpty { message = String(localized: "Aucun jeu trouvé sur DLCompare pour « \(query) ».") } else { message = nil }
     }
 }
 
@@ -84,7 +84,7 @@ struct SearchView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Button { Task { await store.refreshTracked() } } label: { Label("Actualiser les prix suivis", systemImage: "arrow.clockwise") }
                     .disabled(store.refreshing || store.tracked.isEmpty)
-                Button { Task { let n = await store.trackWishlist(); lib.flash("\(n) jeux de la liste de souhaits suivis") } } label: {
+                Button { Task { let n = await store.trackWishlist(); lib.flash(String(localized: "\(n) jeux de la liste de souhaits suivis")) } } label: {
                     Label("Suivre ma liste de souhaits", systemImage: "heart")
                 }.disabled(WishlistStore.shared.items.isEmpty)
             }
@@ -139,7 +139,7 @@ struct SearchView: View {
                         }.width(min: 120, ideal: 170)
                         TableColumn("Code promo") { o in
                             if let code = o.code {
-                                Button { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(code, forType: .string); lib.flash("Code \(code) copié") } label: {
+                                Button { NSPasteboard.general.clearContents(); NSPasteboard.general.setString(code, forType: .string); lib.flash(String(localized: "Code \(code) copié")) } label: {
                                     Label(code, systemImage: "doc.on.doc").font(.caption.monospaced())
                                 }.buttonStyle(.borderless).help("Copier le code")
                             }

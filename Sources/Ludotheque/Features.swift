@@ -127,7 +127,7 @@ final class FreeGamesStore: ObservableObject {
             let known = Set(loot.map(\.id))
             let new = extras.filter { !known.contains($0.id) }
             if !known.isEmpty, !new.isEmpty {
-                Notifier.post("Nouveaux objets gratuits", new.prefix(3).map(\.cleanTitle).joined(separator: ", "), id: "loot-\(new[0].id)")
+                Notifier.post(String(localized: "Nouveaux objets gratuits"), new.prefix(3).map(\.cleanTitle).joined(separator: ", "), id: "loot-\(new[0].id)")
             }
             loot = extras
             Store<[Giveaway]>.save("giveaways-loot.json", extras)
@@ -137,7 +137,7 @@ final class FreeGamesStore: ObservableObject {
         let known = Set(items.map(\.id))
         let new = fresh.filter { !known.contains($0.id) }
         if !known.isEmpty, !new.isEmpty {
-            Notifier.post("Nouveau jeu gratuit", new.prefix(3).map(\.cleanTitle).joined(separator: ", "), id: "free-\(new[0].id)")
+            Notifier.post(String(localized: "Nouveau jeu gratuit"), new.prefix(3).map(\.cleanTitle).joined(separator: ", "), id: "free-\(new[0].id)")
         }
         items = fresh
         Store<[Giveaway]>.save("giveaways.json", fresh)
@@ -232,11 +232,11 @@ final class WishlistStore: ObservableObject {
     /// Imports the public Steam wishlist of the connected (or local) Steam account.
     func importSteam() async -> String {
         guard let sid = Creds(.steam)["steamId"].flatMap({ UInt64($0) != nil ? $0 : nil }) ?? Integrations.steamLocalUser() else {
-            return "Connecte Steam dans Gestion des plateformes (SteamID requis)"
+            return String(localized: "Connecte Steam dans Gestion des plateformes (SteamID requis)")
         }
         guard let r = try? await HTTP.json("https://api.steampowered.com/IWishlistService/GetWishlist/v1/?steamid=\(sid)"),
               let list = (r["response"] as? [String: Any])?["items"] as? [[String: Any]], !list.isEmpty else {
-            return "Liste de souhaits Steam vide ou privée (rends « Détails des jeux » public)"
+            return String(localized: "Liste de souhaits Steam vide ou privée (rends « Détails des jeux » public)")
         }
         var added = 0
         for e in list {
@@ -257,13 +257,13 @@ final class WishlistStore: ObservableObject {
         }
         save()
         await refresh()
-        return "\(added) jeux importés depuis ta liste de souhaits Steam"
+        return String(localized: "\(added) jeux importés depuis ta liste de souhaits Steam")
     }
 
     func refresh(_ ids: [String]? = nil) async {
         guard !refreshing, !items.isEmpty else { return }
         refreshing = true
-        TaskCenter.shared.begin("wishlist", "Prix de la liste de souhaits")
+        TaskCenter.shared.begin("wishlist", String(localized: "Prix de la liste de souhaits"))
         defer { refreshing = false; save(); TaskCenter.shared.end("wishlist") }
         if stores.isEmpty, let (d, _) = try? await HTTP.raw("https://www.cheapshark.com/api/1.0/stores"),
            let arr = try? JSONSerialization.jsonObject(with: d) as? [[String: Any]] {
@@ -291,7 +291,7 @@ final class WishlistStore: ObservableObject {
             let price = it.steamPrice ?? it.bestDeal ?? 0
             if it.onSale, it.notifiedAt != price {
                 let detail = it.steamPrice.map { String(format: "%.2f €", $0) } ?? it.bestDeal.map { String(format: "%.2f $", $0) } ?? ""
-                Notifier.post("Promo : \(it.title)", "\(detail)\(it.steamDiscount.map { $0 > 0 ? " (−\($0) %)" : "" } ?? "")", id: "wish-\(it.id)-\(price)")
+                Notifier.post(String(localized: "Promo : \(it.title)"), "\(detail)\(it.steamDiscount.map { $0 > 0 ? " (−\($0) %)" : "" } ?? "")", id: "wish-\(it.id)-\(price)")
                 it.notifiedAt = price
             }
             items[i] = it
@@ -367,7 +367,7 @@ enum Achievements {
 
     private static func xboxList(_ titleId: String) async -> [Achievement]? {
         guard let key = Creds(.xbox)["apiKey"],
-              let r = try? await HTTP.json("https://xbl.io/api/v2/achievements/title/\(titleId)", headers: ["X-Authorization": key, "Accept-Language": "fr-FR"]),
+              let r = try? await HTTP.json("https://xbl.io/api/v2/achievements/title/\(titleId)", headers: ["X-Authorization": key, "Accept-Language": Langue.bcp47]),
               let list = r["achievements"] as? [[String: Any]] else { return nil }
         return list.compactMap { a in
             guard let id = Integrations.string(a["id"]), let n = a["name"] as? String else { return nil }

@@ -8,28 +8,28 @@ extension Integrations {
 
     static let steam = Integration(
         platform: .steam,
-        summary: "Importe toute la bibliothèque Steam (même les jeux jamais téléchargés sur ce Mac) avec le temps de jeu.",
-        steps: ["Crée une clé Web API (domaine : « localhost »).",
-                "Indique ton SteamID64, ton pseudo personnalisé ou l'URL de ton profil.",
-                "Dans les paramètres de confidentialité Steam, « Détails des jeux » doit être Public."],
-        links: [("Obtenir une clé API", "https://steamcommunity.com/dev/apikey"),
-                ("Confidentialité du profil", "https://steamcommunity.com/my/edit/settings")],
-        fields: [IntegrationField(key: "apiKey", label: "Clé Web API", placeholder: "32 caractères hexadécimaux"),
-                 IntegrationField(key: "steamId", label: "SteamID / profil", placeholder: "7656119… ou pseudo", secret: false,
+        summary: String(localized: "Importe toute la bibliothèque Steam (même les jeux jamais téléchargés sur ce Mac) avec le temps de jeu."),
+        steps: [String(localized: "Crée une clé Web API (domaine : « localhost »)."),
+                String(localized: "Indique ton SteamID64, ton pseudo personnalisé ou l'URL de ton profil."),
+                String(localized: "Dans les paramètres de confidentialité Steam, « Détails des jeux » doit être Public.")],
+        links: [(String(localized: "Obtenir une clé API"), "https://steamcommunity.com/dev/apikey"),
+                (String(localized: "Confidentialité du profil"), "https://steamcommunity.com/my/edit/settings")],
+        fields: [IntegrationField(key: "apiKey", label: String(localized: "Clé Web API"), placeholder: String(localized: "32 caractères hexadécimaux")),
+                 IntegrationField(key: "steamId", label: String(localized: "SteamID / profil"), placeholder: String(localized: "7656119… ou pseudo"), secret: false,
                                   prefill: steamLocalUser)],
         connectedKeys: ["apiKey"]
     ) { c in
-        guard let key = c["apiKey"], var id = c["steamId"] else { throw SyncError("Clé API et SteamID requis") }
+        guard let key = c["apiKey"], var id = c["steamId"] else { throw SyncError(String(localized: "Clé API et SteamID requis")) }
         if UInt64(id) == nil {
             let vanity = id.split(separator: "/").last.map(String.init) ?? id
             let r = try await HTTP.json("https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=\(key)&vanityurl=\(vanity.urlQueryEscaped)")
-            guard let sid = (r["response"] as? [String: Any])?["steamid"] as? String else { throw SyncError("Profil Steam « \(vanity) » introuvable") }
+            guard let sid = (r["response"] as? [String: Any])?["steamid"] as? String else { throw SyncError(String(localized: "Profil Steam « \(vanity) » introuvable")) }
             id = sid
             c["steamId"] = sid
         }
         let r = try await HTTP.json("https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/?key=\(key)&steamid=\(id)&include_appinfo=1&include_played_free_games=1&format=json")
         guard let list = (r["response"] as? [String: Any])?["games"] as? [[String: Any]] else {
-            throw SyncError("Aucun jeu renvoyé — « Détails des jeux » est-il public sur ton profil ?")
+            throw SyncError(String(localized: "Aucun jeu renvoyé — « Détails des jeux » est-il public sur ton profil ?"))
         }
         return list.compactMap { e in
             guard let appid = string(e["appid"]) else { return nil }
@@ -54,12 +54,12 @@ extension Integrations {
 
     static let gog = Integration(
         platform: .gog,
-        summary: "Importe tous les jeux de ton compte GOG, avec la compatibilité Mac.",
-        steps: ["Clique sur « Se connecter à GOG » et identifie-toi.",
-                "Tu arrives sur une page blanche : copie son adresse complète (elle contient « code= »).",
-                "Colle-la ci-dessous puis synchronise. La connexion est ensuite renouvelée automatiquement."],
-        links: [("Se connecter à GOG", "https://auth.gog.com/auth?client_id=\(gogClientId)&redirect_uri=\(gogRedirect.urlQueryEscaped)&response_type=code&layout=client2")],
-        fields: [IntegrationField(key: "code", label: "Adresse ou code", placeholder: "https://embed.gog.com/on_login_success?…code=…")],
+        summary: String(localized: "Importe tous les jeux de ton compte GOG, avec la compatibilité Mac."),
+        steps: [String(localized: "Clique sur « Se connecter à GOG » et identifie-toi."),
+                String(localized: "Tu arrives sur une page blanche : copie son adresse complète (elle contient « code= »)."),
+                String(localized: "Colle-la ci-dessous puis synchronise. La connexion est ensuite renouvelée automatiquement.")],
+        links: [(String(localized: "Se connecter à GOG"), "https://auth.gog.com/auth?client_id=\(gogClientId)&redirect_uri=\(gogRedirect.urlQueryEscaped)&response_type=code&layout=client2")],
+        fields: [IntegrationField(key: "code", label: String(localized: "Adresse ou code"), placeholder: "https://embed.gog.com/on_login_success?…code=…")],
         connectedKeys: ["refresh", "code"]
     ) { c in
         let base = "https://auth.gog.com/token?client_id=\(gogClientId)&client_secret=\(gogSecret)"
@@ -69,8 +69,8 @@ extension Integrations {
             c["code"] = nil
         } else if let rt = c["refresh"] {
             tok = try await HTTP.json("\(base)&grant_type=refresh_token&refresh_token=\(rt.urlQueryEscaped)")
-        } else { throw SyncError("Connecte-toi d'abord à GOG") }
-        guard let access = tok["access_token"] as? String else { throw SyncError("Connexion GOG refusée — recommence la connexion") }
+        } else { throw SyncError(String(localized: "Connecte-toi d'abord à GOG")) }
+        guard let access = tok["access_token"] as? String else { throw SyncError(String(localized: "Connexion GOG refusée — recommence la connexion")) }
         c["refresh"] = tok["refresh_token"] as? String
         let galaxy = Launchers.installed(.gog)
 
@@ -99,12 +99,12 @@ extension Integrations {
 
     static let epic = Integration(
         platform: .epic,
-        summary: "Importe toute ta bibliothèque Epic Games (y compris les jeux gratuits récupérés).",
-        steps: ["Clique sur « Se connecter à Epic » et identifie-toi.",
-                "La page affiche un texte JSON : copie la valeur « authorizationCode » (ou tout le texte).",
-                "Colle-la ci-dessous puis synchronise. Le code n'est valable que quelques minutes."],
-        links: [("Se connecter à Epic", "https://www.epicgames.com/id/login?redirectUrl=https%3A%2F%2Fwww.epicgames.com%2Fid%2Fapi%2Fredirect%3FclientId%3D34a02cf8f4414e29b15921876da36f9a%26responseType%3Dcode")],
-        fields: [IntegrationField(key: "code", label: "authorizationCode", placeholder: "32 caractères")],
+        summary: String(localized: "Importe toute ta bibliothèque Epic Games (y compris les jeux gratuits récupérés)."),
+        steps: [String(localized: "Clique sur « Se connecter à Epic » et identifie-toi."),
+                String(localized: "La page affiche un texte JSON : copie la valeur « authorizationCode » (ou tout le texte)."),
+                String(localized: "Colle-la ci-dessous puis synchronise. Le code n'est valable que quelques minutes.")],
+        links: [(String(localized: "Se connecter à Epic"), "https://www.epicgames.com/id/login?redirectUrl=https%3A%2F%2Fwww.epicgames.com%2Fid%2Fapi%2Fredirect%3FclientId%3D34a02cf8f4414e29b15921876da36f9a%26responseType%3Dcode")],
+        fields: [IntegrationField(key: "code", label: "authorizationCode", placeholder: String(localized: "32 caractères"))],
         connectedKeys: ["refresh", "code"]
     ) { c in
         let tokURL = "https://account-public-service-prod03.ol.epicgames.com/account/api/oauth/token"
@@ -117,8 +117,8 @@ extension Integrations {
         } else if let rt = c["refresh"] {
             tok = try await HTTP.json(tokURL, method: "POST", headers: auth,
                                       form: ["grant_type": "refresh_token", "refresh_token": rt, "token_type": "eg1"])
-        } else { throw SyncError("Connecte-toi d'abord à Epic") }
-        guard let access = tok["access_token"] as? String else { throw SyncError("Connexion Epic refusée — recommence la connexion") }
+        } else { throw SyncError(String(localized: "Connecte-toi d'abord à Epic")) }
+        guard let access = tok["access_token"] as? String else { throw SyncError(String(localized: "Connexion Epic refusée — recommence la connexion")) }
         c["refresh"] = tok["refresh_token"] as? String
         let bearer = ["Authorization": "bearer \(access)"]
 
@@ -172,17 +172,17 @@ extension Integrations {
 
     static let xbox = Integration(
         platform: .xbox,
-        summary: "Importe ton historique de jeux Xbox (console, PC, Game Pass) via le service gratuit OpenXBL.",
-        steps: ["Connecte-toi sur xbl.io avec ton compte Microsoft.",
-                "Dans ton profil OpenXBL, crée une clé API (« API Keys »).",
-                "Colle-la ci-dessous. Les jeux se lancent ensuite via Xbox Cloud Gaming."],
-        links: [("Ouvrir OpenXBL", "https://xbl.io")],
-        fields: [IntegrationField(key: "apiKey", label: "Clé API OpenXBL")],
+        summary: String(localized: "Importe ton historique de jeux Xbox (console, PC, Game Pass) via le service gratuit OpenXBL."),
+        steps: [String(localized: "Connecte-toi sur xbl.io avec ton compte Microsoft."),
+                String(localized: "Dans ton profil OpenXBL, crée une clé API (« API Keys »)."),
+                String(localized: "Colle-la ci-dessous. Les jeux se lancent ensuite via Xbox Cloud Gaming.")],
+        links: [(String(localized: "Ouvrir OpenXBL"), "https://xbl.io")],
+        fields: [IntegrationField(key: "apiKey", label: String(localized: "Clé API OpenXBL"))],
         connectedKeys: ["apiKey"]
     ) { c in
-        guard let key = c["apiKey"] else { throw SyncError("Clé API requise") }
+        guard let key = c["apiKey"] else { throw SyncError(String(localized: "Clé API requise")) }
         let r = try await HTTP.json("https://xbl.io/api/v2/player/titleHistory",
-                                    headers: ["X-Authorization": key, "Accept": "application/json", "Accept-Language": "fr-FR"])
+                                    headers: ["X-Authorization": key, "Accept": "application/json", "Accept-Language": Langue.bcp47])
         let titles = (r["titles"] ?? (r["content"] as? [String: Any])?["titles"]) as? [[String: Any]] ?? []
         return titles.compactMap { t in
             guard let id = string(t["titleId"]), let name = t["name"] as? String else { return nil }
@@ -199,16 +199,16 @@ extension Integrations {
 
     static let psn = Integration(
         platform: .psn,
-        summary: "Importe les jeux PS4 / PS5 auxquels tu as joué, avec le temps de jeu. Non jouables sur Mac (hors PS Remote Play).",
-        steps: ["Connecte-toi sur playstation.com dans ton navigateur.",
-                "Ouvre ensuite le lien « Obtenir le jeton NPSSO » : copie la valeur « npsso » (64 caractères).",
-                "Colle-la ci-dessous. Le jeton expire au bout d'environ 2 mois."],
-        links: [("1. Se connecter à PlayStation", "https://www.playstation.com/"),
-                ("2. Obtenir le jeton NPSSO", "https://ca.account.sony.com/api/v1/ssocookie")],
-        fields: [IntegrationField(key: "npsso", label: "Jeton NPSSO")],
+        summary: String(localized: "Importe les jeux PS4 / PS5 auxquels tu as joué, avec le temps de jeu. Non jouables sur Mac (hors PS Remote Play)."),
+        steps: [String(localized: "Connecte-toi sur playstation.com dans ton navigateur."),
+                String(localized: "Ouvre ensuite le lien « Obtenir le jeton NPSSO » : copie la valeur « npsso » (64 caractères)."),
+                String(localized: "Colle-la ci-dessous. Le jeton expire au bout d'environ 2 mois.")],
+        links: [(String(localized: "1. Se connecter à PlayStation"), "https://www.playstation.com/"),
+                (String(localized: "2. Obtenir le jeton NPSSO"), "https://ca.account.sony.com/api/v1/ssocookie")],
+        fields: [IntegrationField(key: "npsso", label: String(localized: "Jeton NPSSO"))],
         connectedKeys: ["npsso"]
     ) { c in
-        guard let raw = c["npsso"] else { throw SyncError("Jeton NPSSO requis") }
+        guard let raw = c["npsso"] else { throw SyncError(String(localized: "Jeton NPSSO requis")) }
         let access = try await psnAccessToken(raw)
 
         var games = [Game](), offset = 0
@@ -240,13 +240,13 @@ extension Integrations {
         let (_, resp) = try await HTTP.raw(authURL, headers: ["Cookie": "npsso=\(npsso)"], session: HTTP.noRedirect)
         guard let loc = resp.value(forHTTPHeaderField: "Location"),
               let code = URLComponents(string: loc)?.queryItems?.first(where: { $0.name == "code" })?.value else {
-            throw SyncError("Jeton NPSSO invalide ou expiré")
+            throw SyncError(String(localized: "Jeton NPSSO invalide ou expiré"))
         }
         let tok = try await HTTP.json("https://ca.account.sony.com/api/authz/v3/oauth/token", method: "POST",
                                       headers: ["Authorization": "Basic MDk1MTUxNTktNzIzNy00MzcwLTliNDAtMzgwNmU2N2MwODkxOnVjUGprYTV0bnRCMktxc1A="],
                                       form: ["code": code, "redirect_uri": "com.scee.psxandroid.scecompcall://redirect",
                                              "grant_type": "authorization_code", "token_format": "jwt"])
-        guard let access = tok["access_token"] as? String else { throw SyncError("Authentification PlayStation refusée") }
+        guard let access = tok["access_token"] as? String else { throw SyncError(String(localized: "Authentification PlayStation refusée")) }
 
         return access
     }
@@ -255,13 +255,13 @@ extension Integrations {
 
     static let itch = Integration(
         platform: .itch,
-        summary: "Importe tous les jeux achetés ou réclamés sur itch.io.",
-        steps: ["Dans les paramètres itch.io, section « API keys », génère une nouvelle clé.", "Colle-la ci-dessous."],
-        links: [("Clés API itch.io", "https://itch.io/user/settings/api-keys")],
-        fields: [IntegrationField(key: "apiKey", label: "Clé API itch.io")],
+        summary: String(localized: "Importe tous les jeux achetés ou réclamés sur itch.io."),
+        steps: [String(localized: "Dans les paramètres itch.io, section « API keys », génère une nouvelle clé."), String(localized: "Colle-la ci-dessous.")],
+        links: [(String(localized: "Clés API itch.io"), "https://itch.io/user/settings/api-keys")],
+        fields: [IntegrationField(key: "apiKey", label: String(localized: "Clé API itch.io"))],
         connectedKeys: ["apiKey"]
     ) { c in
-        guard let key = c["apiKey"] else { throw SyncError("Clé API requise") }
+        guard let key = c["apiKey"] else { throw SyncError(String(localized: "Clé API requise")) }
         let app = Launchers.installed(.itch)
         var games = [Game](), page = 1
         while page < 100 {
@@ -287,20 +287,20 @@ extension Integrations {
 
     static let humble = Integration(
         platform: .humble,
-        summary: "Importe les jeux sans DRM de tes achats Humble Bundle / Humble Choice.",
-        steps: ["Connecte-toi sur humblebundle.com.",
-                "Ouvre les outils de développement du navigateur → Stockage/Application → Cookies.",
-                "Copie la valeur du cookie « _simpleauth_sess » et colle-la ci-dessous."],
-        links: [("Ouvrir Humble Bundle", "https://www.humblebundle.com/home/library")],
+        summary: String(localized: "Importe les jeux sans DRM de tes achats Humble Bundle / Humble Choice."),
+        steps: [String(localized: "Connecte-toi sur humblebundle.com."),
+                String(localized: "Ouvre les outils de développement du navigateur → Stockage/Application → Cookies."),
+                String(localized: "Copie la valeur du cookie « _simpleauth_sess » et colle-la ci-dessous.")],
+        links: [(String(localized: "Ouvrir Humble Bundle"), "https://www.humblebundle.com/home/library")],
         fields: [IntegrationField(key: "cookie", label: "Cookie _simpleauth_sess")],
         connectedKeys: ["cookie"]
     ) { c in
-        guard var cookie = c["cookie"] else { throw SyncError("Cookie requis") }
+        guard var cookie = c["cookie"] else { throw SyncError(String(localized: "Cookie requis")) }
         if cookie.hasPrefix("_simpleauth_sess=") { cookie = String(cookie.dropFirst("_simpleauth_sess=".count)) }
         let headers = ["Cookie": "_simpleauth_sess=\(cookie)", "Accept": "application/json"]
         let (d, r) = try await HTTP.raw("https://www.humblebundle.com/api/v1/user/order?ajax=true", headers: headers)
         guard r.statusCode == 200, let orders = try? JSONSerialization.jsonObject(with: d) as? [[String: Any]] else {
-            throw SyncError("Cookie invalide ou expiré")
+            throw SyncError(String(localized: "Cookie invalide ou expiré"))
         }
         let keys = orders.compactMap { $0["gamekey"] as? String }
         var games = [String: Game]()
@@ -352,31 +352,31 @@ extension Integrations {
 
     static let nintendo = Integration(
         platform: .nintendo,
-        summary: "Importe l'historique de jeu de ta Nintendo Switch (titres et temps de jeu) depuis ton compte Nintendo. Expérimental : API non officielle.",
-        steps: ["Clique sur « Se connecter à Nintendo » et identifie-toi.",
-                "Sur la page « Lier un compte », fais un clic droit sur le bouton rouge « Sélectionner ce compte » → « Copier le lien ».",
-                "Colle le lien (npf…://auth#session_token_code=…) ci-dessous puis synchronise. La connexion reste valable ensuite."],
-        links: [("Se connecter à Nintendo", "ludotheque:nintendo-login")], // built on click (needs the PKCE verifier)
-        fields: [IntegrationField(key: "code", label: "Lien copié", placeholder: "npf5c38e31cd085304b://auth#session_token_code=…")],
+        summary: String(localized: "Importe l'historique de jeu de ta Nintendo Switch (titres et temps de jeu) depuis ton compte Nintendo. Expérimental : API non officielle."),
+        steps: [String(localized: "Clique sur « Se connecter à Nintendo » et identifie-toi."),
+                String(localized: "Sur la page « Lier un compte », fais un clic droit sur le bouton rouge « Sélectionner ce compte » → « Copier le lien »."),
+                String(localized: "Colle le lien (npf…://auth#session_token_code=…) ci-dessous puis synchronise. La connexion reste valable ensuite.")],
+        links: [(String(localized: "Se connecter à Nintendo"), "ludotheque:nintendo-login")], // built on click (needs the PKCE verifier)
+        fields: [IntegrationField(key: "code", label: String(localized: "Lien copié"), placeholder: "npf5c38e31cd085304b://auth#session_token_code=…")],
         connectedKeys: ["refresh", "code"]
     ) { c in
         let ua = ["User-Agent": "com.nintendo.znej/1.13.0 (Android/7.1.2)", "Accept": "application/json"]
         if let pasted = c["code"] {
             guard let re = try? NSRegularExpression(pattern: "session_token_code=([^&\\s]+)"),
                   let m = re.firstMatch(in: pasted, range: NSRange(pasted.startIndex..., in: pasted)),
-                  let r = Range(m.range(at: 1), in: pasted) else { throw SyncError("Lien invalide : il doit contenir « session_token_code= »") }
+                  let r = Range(m.range(at: 1), in: pasted) else { throw SyncError(String(localized: "Lien invalide : il doit contenir « session_token_code= »")) }
             let st = try await HTTP.json("https://accounts.nintendo.com/connect/1.0.0/api/session_token", method: "POST", headers: ua,
                                          form: ["client_id": nintendoClient, "session_token_code": String(pasted[r]),
                                                 "session_token_code_verifier": nintendoVerifier])
-            guard let session = st["session_token"] as? String else { throw SyncError("Connexion Nintendo refusée — recommence") }
+            guard let session = st["session_token"] as? String else { throw SyncError(String(localized: "Connexion Nintendo refusée — recommence")) }
             c["refresh"] = session
             c["code"] = nil
         }
-        guard let session = c["refresh"] else { throw SyncError("Connecte-toi d'abord à Nintendo") }
+        guard let session = c["refresh"] else { throw SyncError(String(localized: "Connecte-toi d'abord à Nintendo")) }
         let tok = try await HTTP.json("https://accounts.nintendo.com/connect/1.0.0/api/token", method: "POST", headers: ua,
                                       jsonBody: ["client_id": nintendoClient, "session_token": session,
                                                  "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer-session-token"])
-        guard let access = tok["access_token"] as? String else { throw SyncError("Session Nintendo expirée — reconnecte-toi") }
+        guard let access = tok["access_token"] as? String else { throw SyncError(String(localized: "Session Nintendo expirée — reconnecte-toi")) }
         var h = ua
         h["Authorization"] = "Bearer \(access)"
         let r = try await HTTP.json("https://mypage-api.entry.nintendo.co.jp/api/v1/users/me/play_histories", headers: h)

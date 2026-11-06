@@ -115,7 +115,7 @@ struct UninstallSheet: View {
         if case .launcher(_, let url) = plan.method { NSWorkspace.shared.open(url) }
         let failed = Uninstaller.trash(plan.items.filter { model.selected.contains($0.id) })
         lib.uninstalling = nil
-        lib.flash(failed.isEmpty ? "\(game.title) désinstallé — fichiers placés dans la Corbeille" : "\(failed.count) élément(s) n'ont pas pu être supprimés")
+        lib.flash(failed.isEmpty ? String(localized: "\(game.title) désinstallé — fichiers placés dans la Corbeille") : String(localized: "\(failed.count) élément(s) n'ont pas pu être supprimés"))
         Task { try? await Task.sleep(for: .seconds(2)); await lib.refresh(sync: false) }
     }
 }

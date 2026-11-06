@@ -8,13 +8,13 @@ enum Completion: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .none: "Pas commencé"
-        case .planned: "À jouer"
-        case .playing: "En cours"
-        case .onHold: "En pause"
-        case .beaten: "Terminé"
-        case .completed: "Complété à 100 %"
-        case .abandoned: "Abandonné"
+        case .none: String(localized: "Pas commencé")
+        case .planned: String(localized: "À jouer")
+        case .playing: String(localized: "En cours")
+        case .onHold: String(localized: "En pause")
+        case .beaten: String(localized: "Terminé")
+        case .completed: String(localized: "Complété à 100 %")
+        case .abandoned: String(localized: "Abandonné")
         }
     }
     var symbol: String {

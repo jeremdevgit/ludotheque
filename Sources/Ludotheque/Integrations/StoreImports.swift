@@ -9,18 +9,18 @@ extension Integrations {
 
     static let appStore = Integration(
         platform: .appstore,
-        summary: "Les jeux App Store / Apple Arcade installés sont détectés automatiquement. Pour retrouver aussi ceux achetés mais non installés, importe l'export de tes données Apple.",
-        steps: ["Sur privacy.apple.com, demande une copie de tes données → coche « Informations Apple Media Services ».",
-                "Quand Apple t'envoie l'archive (quelques jours), décompresse-la.",
-                "Choisis le dossier décompressé (ou le fichier CSV d'historique d'achats) ci-dessous puis synchronise."],
-        links: [("Données et confidentialité Apple", "https://privacy.apple.com/"),
-                ("Mes achats App Store", "macappstore://showPurchasesPage")],
-        fields: [IntegrationField(key: "file", label: "Export Apple", placeholder: "Dossier ou fichier .csv", secret: false, file: true)],
+        summary: String(localized: "Les jeux App Store / Apple Arcade installés sont détectés automatiquement. Pour retrouver aussi ceux achetés mais non installés, importe l'export de tes données Apple."),
+        steps: [String(localized: "Sur privacy.apple.com, demande une copie de tes données → coche « Informations Apple Media Services »."),
+                String(localized: "Quand Apple t'envoie l'archive (quelques jours), décompresse-la."),
+                String(localized: "Choisis le dossier décompressé (ou le fichier CSV d'historique d'achats) ci-dessous puis synchronise.")],
+        links: [(String(localized: "Données et confidentialité Apple"), "https://privacy.apple.com/"),
+                (String(localized: "Mes achats App Store"), "macappstore://showPurchasesPage")],
+        fields: [IntegrationField(key: "file", label: String(localized: "Export Apple"), placeholder: String(localized: "Dossier ou fichier .csv"), secret: false, file: true)],
         connectedKeys: ["file"]
     ) { c in
-        guard let path = c["file"] else { throw SyncError("Choisis l'export Apple") }
+        guard let path = c["file"] else { throw SyncError(String(localized: "Choisis l'export Apple")) }
         let csvs = files(at: path, ext: "csv")
-        guard !csvs.isEmpty else { throw SyncError("Aucun fichier CSV trouvé dans l'export") }
+        guard !csvs.isEmpty else { throw SyncError(String(localized: "Aucun fichier CSV trouvé dans l'export")) }
         var games = [String: Game]()
         for f in csvs {
             guard let rows = CSV.read(f), let header = rows.first?.map({ $0.lowercased() }) else { continue }
@@ -50,15 +50,15 @@ extension Integrations {
 
     static let googlePlay = Integration(
         platform: .googleplay,
-        summary: "Importe tes jeux Google Play (Android) depuis Google Takeout. Ces jeux ne se lancent pas sur Mac mais sont répertoriés avec ton temps de jeu.",
-        steps: ["Sur takeout.google.com, sélectionne « Google Play Jeux » et « Google Play Store », puis exporte.",
-                "Décompresse l'archive reçue.",
-                "Choisis le dossier « Takeout » ci-dessous puis synchronise. Les jeux viennent de « Google Play Jeux » ; à défaut, de la bibliothèque Play Store."],
+        summary: String(localized: "Importe tes jeux Google Play (Android) depuis Google Takeout. Ces jeux ne se lancent pas sur Mac mais sont répertoriés avec ton temps de jeu."),
+        steps: [String(localized: "Sur takeout.google.com, sélectionne « Google Play Jeux » et « Google Play Store », puis exporte."),
+                String(localized: "Décompresse l'archive reçue."),
+                String(localized: "Choisis le dossier « Takeout » ci-dessous puis synchronise. Les jeux viennent de « Google Play Jeux » ; à défaut, de la bibliothèque Play Store.")],
         links: [("Google Takeout", "https://takeout.google.com/"), ("Google Play Jeux", "https://play.google.com/store/games")],
-        fields: [IntegrationField(key: "file", label: "Dossier Takeout", placeholder: "…/Takeout", secret: false, file: true)],
+        fields: [IntegrationField(key: "file", label: String(localized: "Dossier Takeout"), placeholder: "…/Takeout", secret: false, file: true)],
         connectedKeys: ["file"]
     ) { c in
-        guard let path = c["file"] else { throw SyncError("Choisis le dossier Takeout") }
+        guard let path = c["file"] else { throw SyncError(String(localized: "Choisis le dossier Takeout")) }
         let root = URL(fileURLWithPath: path)
         var titles = Set<String>()
         // 1. Play Games Services: one folder per game the account has played.
@@ -80,7 +80,7 @@ extension Integrations {
                 }
             }
         }
-        guard !titles.isEmpty else { throw SyncError("Aucun jeu trouvé dans ce dossier Takeout") }
+        guard !titles.isEmpty else { throw SyncError(String(localized: "Aucun jeu trouvé dans ce dossier Takeout")) }
         return titles.map { t in
             var g = Game(id: "googleplay_\(norm(t))", platform: .googleplay, externalId: t, title: t)
             g.macNative = false

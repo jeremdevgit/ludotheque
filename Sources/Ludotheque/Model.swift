@@ -35,12 +35,12 @@ enum Platform: String, Codable, CaseIterable, Identifiable, Sendable {
         case .meta: "Meta Quest"
         case .appstore: "App Store / Arcade"
         case .googleplay: "Google Play Games"
-        case .mac: "Apps Mac"
+        case .mac: String(localized: "Apps Mac")
         case .crossover: "CrossOver / Wine"
         case .playcover: "PlayCover (iOS)"
-        case .emulation: "Rétro / Émulation"
-        case .custom: "Autres (manuel)"
-        case .other: "Autres"
+        case .emulation: String(localized: "Rétro / Émulation")
+        case .custom: String(localized: "Autres (manuel)")
+        case .other: String(localized: "Autres")
         }
     }
 
@@ -153,10 +153,10 @@ enum LaunchKind: String, Codable, CaseIterable, Sendable {
 
     var label: String {
         switch self {
-        case .installed: "Installé"
-        case .installable: "Installable localement"
-        case .cloud: "Cloud"
-        case .none: "Bibliothèque seule"
+        case .installed: String(localized: "Installé")
+        case .installable: String(localized: "Installable localement")
+        case .cloud: String(localized: "Cloud")
+        case .none: String(localized: "Bibliothèque seule")
         }
     }
     var symbol: String {

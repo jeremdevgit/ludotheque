@@ -9,8 +9,8 @@ import GameController
 final class TVModel: ObservableObject {
     @Published var index = 0
     @Published var tab = 0
-    let tabs: [(String, Scope)] = [("Installés", .installed), ("Jouables", .playable), ("Récents", .recent),
-                                   ("Favoris", .favorites), ("Cloud", .cloud), ("Tous", .all)]
+    let tabs: [(String, Scope)] = [(String(localized: "Installés"), .installed), (String(localized: "Jouables"), .playable), (String(localized: "Récents"), .recent),
+                                   (String(localized: "Favoris"), .favorites), (String(localized: "Cloud"), .cloud), (String(localized: "Tous"), .all)]
     weak var lib: Library?
     weak var window: NSWindow?
     var close: (() -> Void)?
@@ -197,7 +197,7 @@ struct TVModeView: View {
                 Spacer()
 
                 HStack(spacing: 30) {
-                    hint("A", "Jouer"); hint("B", "Quitter"); hint("X", "Au hasard"); hint("Y", "Favori")
+                    hint("A", String(localized: "Jouer")); hint("B", String(localized: "Quitter")); hint("X", String(localized: "Au hasard")); hint("Y", String(localized: "Favori"))
                     Spacer()
                     Text("Clavier : flèches · Entrée · Échap · Q/E · R · F").foregroundStyle(.white.opacity(0.5))
                 }

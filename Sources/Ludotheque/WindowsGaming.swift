@@ -22,14 +22,14 @@ enum WinTool: String, CaseIterable, Identifiable {
     }
     var summary: String {
         switch self {
-        case .heroic: "Gratuit. Le plus simple pour Epic Games, GOG et Amazon : connexion à tes comptes, installation et lancement en un clic (Wine + Game Porting Toolkit intégrés)."
-        case .crossover: "Payant (essai 14 jours). Le plus compatible : Steam, Battle.net, EA, Ubisoft… dans des « bouteilles » Windows, avec D3DMetal d'Apple. Recommandé pour Steam."
-        case .whisky: "Gratuit, interface simple basée sur le Game Porting Toolkit. N'est plus maintenu depuis 2025 mais fonctionne encore pour beaucoup de jeux."
-        case .sikarugir: "Gratuit (successeur de Wineskin/Kegworks) : crée une app Mac autonome par jeu. Plus technique."
-        case .portingKit: "Gratuit : catalogue de jeux pré-configurés (« ports ») à installer en quelques clics."
-        case .parallels: "Payant : vrai Windows 11 ARM en machine virtuelle. Compatible avec plus de logiciels, mais pas avec les anti-triche."
-        case .geforceNow: "Streaming : jeux Steam/Epic/Ubisoft que tu possèdes, en haute qualité, même ceux avec anti-triche. Gratuit avec file d'attente."
-        case .xboxCloud: "Streaming via le navigateur avec le Game Pass Ultimate. Aucune installation."
+        case .heroic: String(localized: "Gratuit. Le plus simple pour Epic Games, GOG et Amazon : connexion à tes comptes, installation et lancement en un clic (Wine + Game Porting Toolkit intégrés).")
+        case .crossover: String(localized: "Payant (essai 14 jours). Le plus compatible : Steam, Battle.net, EA, Ubisoft… dans des « bouteilles » Windows, avec D3DMetal d'Apple. Recommandé pour Steam.")
+        case .whisky: String(localized: "Gratuit, interface simple basée sur le Game Porting Toolkit. N'est plus maintenu depuis 2025 mais fonctionne encore pour beaucoup de jeux.")
+        case .sikarugir: String(localized: "Gratuit (successeur de Wineskin/Kegworks) : crée une app Mac autonome par jeu. Plus technique.")
+        case .portingKit: String(localized: "Gratuit : catalogue de jeux pré-configurés (« ports ») à installer en quelques clics.")
+        case .parallels: String(localized: "Payant : vrai Windows 11 ARM en machine virtuelle. Compatible avec plus de logiciels, mais pas avec les anti-triche.")
+        case .geforceNow: String(localized: "Streaming : jeux Steam/Epic/Ubisoft que tu possèdes, en haute qualité, même ceux avec anti-triche. Gratuit avec file d'attente.")
+        case .xboxCloud: String(localized: "Streaming via le navigateur avec le Game Pass Ultimate. Aucune installation.")
         }
     }
     var bundleIds: [String] {
@@ -134,10 +134,10 @@ enum WinRoute: Equatable {
     case heroic, crossover, cloud(String), antiCheatCloud, xboxCloud
     var label: String {
         switch self {
-        case .heroic: "Heroic (gratuit)"
+        case .heroic: String(localized: "Heroic (gratuit)")
         case .crossover: "CrossOver / Whisky"
         case .cloud(let s): s
-        case .antiCheatCloud: "Cloud uniquement (anti-triche)"
+        case .antiCheatCloud: String(localized: "Cloud uniquement (anti-triche)")
         case .xboxCloud: "Xbox Cloud Gaming"
         }
     }
@@ -174,7 +174,7 @@ final class WindowsGaming: ObservableObject {
     func loadAntiCheat(force: Bool = false) async {
         let fresh = (UserDefaults.standard.object(forKey: "anticheatAt") as? Date).map { Date().timeIntervalSince($0) < 7 * 86400 } ?? false
         if !force && fresh && !antiCheat.isEmpty { return }
-        TaskCenter.shared.begin("anticheat", "Base de compatibilité anti-triche")
+        TaskCenter.shared.begin("anticheat", String(localized: "Base de compatibilité anti-triche"))
         defer { TaskCenter.shared.end("anticheat") }
         guard let (d, r) = try? await HTTP.raw("https://raw.githubusercontent.com/AreWeAntiCheatYet/AreWeAntiCheatYet/HEAD/games.json"),
               r.statusCode == 200, let arr = try? JSONSerialization.jsonObject(with: d) as? [[String: Any]] else { return }
@@ -219,7 +219,7 @@ final class WindowsGaming: ObservableObject {
 
     /// Installs Rosetta 2 (needed by Wine / x86 games), asking for the admin password.
     func installRosetta() async {
-        busy = "Installation de Rosetta 2…"
+        busy = String(localized: "Installation de Rosetta 2…")
         defer { busy = nil }
         let ok = await Task.detached { () -> Bool in
             var err: NSDictionary?
@@ -234,20 +234,20 @@ final class WindowsGaming: ObservableObject {
     /// Downloads an official Windows launcher installer and opens it in CrossOver / Whisky,
     /// which start their install wizard in a Windows "bottle".
     func install(_ i: WinInstaller, with tool: WinTool) async -> String {
-        guard let app = tool.installedURL else { return "\(tool.name) n'est pas installé" }
-        guard let url = URL(string: i.url), let host = url.host, WinInstaller.allowedHosts.contains(host) else { return "Lien non autorisé" }
+        guard let app = tool.installedURL else { return String(localized: "\(tool.name) n'est pas installé") }
+        guard let url = URL(string: i.url), let host = url.host, WinInstaller.allowedHosts.contains(host) else { return String(localized: "Lien non autorisé") }
         let dir = Paths.dir(Paths.home.appendingPathComponent("Downloads/Ludothèque"))
         let dest = dir.appendingPathComponent(i.fileName)
-        TaskCenter.shared.begin("wininstall", "Téléchargement de \(i.name)")
+        TaskCenter.shared.begin("wininstall", String(localized: "Téléchargement de \(i.name)"))
         defer { TaskCenter.shared.end("wininstall") }
         do {
             let (tmp, resp) = try await URLSession.shared.download(from: url)
-            guard (resp as? HTTPURLResponse)?.statusCode == 200 else { return "Téléchargement impossible (\(i.name))" }
+            guard (resp as? HTTPURLResponse)?.statusCode == 200 else { return String(localized: "Téléchargement impossible (\(i.name))") }
             try? FileManager.default.removeItem(at: dest)
             try FileManager.default.moveItem(at: tmp, to: dest)
-        } catch { return "Téléchargement impossible : \(error.localizedDescription)" }
+        } catch { return String(localized: "Téléchargement impossible : \(error.localizedDescription)") }
         NSWorkspace.shared.open([dest], withApplicationAt: app, configuration: .init()) { _, _ in }
-        return "\(i.name) s'ouvre dans \(tool.name) : suis l'assistant d'installation"
+        return String(localized: "\(i.name) s'ouvre dans \(tool.name) : suis l'assistant d'installation")
     }
 
     func open(_ tool: WinTool) {
@@ -258,6 +258,6 @@ final class WindowsGaming: ObservableObject {
     static func compatLinks(_ title: String) -> [(String, URL)] {
         let q = title.urlQueryEscaped
         return [("AppleGamingWiki", "https://www.applegamingwiki.com/w/index.php?search=\(q)"),
-                ("Base CodeWeavers", "https://www.codeweavers.com/compatibility?name=\(q)")].compactMap { n, u in URL(string: u).map { (n, $0) } }
+                (String(localized: "Base CodeWeavers"), "https://www.codeweavers.com/compatibility?name=\(q)")].compactMap { n, u in URL(string: u).map { (n, $0) } }
     }
 }

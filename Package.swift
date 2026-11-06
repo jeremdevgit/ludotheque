@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: GPL-3.0-or-later — Copyright (C) 2026 jeremdevgit — voir LICENSE
 // swift-tools-version:5.10
+// SPDX-License-Identifier: GPL-3.0-or-later — Copyright (C) 2026 jeremdevgit — voir LICENSE
 import PackageDescription
 
 let package = Package(

@@ -6,7 +6,7 @@
 # credentials in the Keychain, caches in ~/Library/Caches/Ludotheque — all created at first launch.
 #
 # Optional environment variables:
-#   VERSION=1.1.0                         version number
+#   VERSION=1.2.0                         version number
 #   BUNDLE_ID=app.ludotheque.Ludotheque   bundle identifier
 #   SIGN_IDENTITY="Developer ID Application: Name (TEAMID)"   otherwise ad-hoc signature
 #   NOTARY_PROFILE=profile                notarytool keychain profile (requires SIGN_IDENTITY)
@@ -14,7 +14,7 @@
 set -e
 cd "${0:A:h}/.."
 
-VERSION=${VERSION:-1.1.0}
+VERSION=${VERSION:-1.2.0}
 BUNDLE_ID=${BUNDLE_ID:-app.ludotheque.Ludotheque}
 NAME="Ludothèque"
 DIST=dist
@@ -37,6 +37,8 @@ if [[ ! -f Resources/AppIcon.icns ]]; then
   rm -rf "$DIST/AppIcon.iconset"
 fi
 cp Resources/AppIcon.icns "$APP/Contents/Resources/"
+# Translations: one .lproj folder per language (the French text is the key; English is the fallback).
+cp -R Resources/*.lproj "$APP/Contents/Resources/"
 
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -53,7 +55,8 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>LSApplicationCategoryType</key><string>public.app-category.games</string>
   <key>NSHighResolutionCapable</key><true/>
-  <key>CFBundleDevelopmentRegion</key><string>fr</string>
+  <key>CFBundleDevelopmentRegion</key><string>en</string>
+  <key>CFBundleLocalizations</key><array><string>fr</string><string>en</string><string>es</string><string>de</string><string>it</string><string>pt</string><string>zh-Hans</string><string>ja</string></array>
   <key>NSHumanReadableCopyright</key><string>© 2026 jeremdevgit — GPL-3.0-or-later</string>
 </dict></plist>
 PLIST

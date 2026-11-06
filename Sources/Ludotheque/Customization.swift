@@ -29,12 +29,12 @@ enum SidebarSection: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .top: "En-tête (Accueil, Profil…)"
-        case .library: "Bibliothèque"
-        case .stores: "Boutiques"
-        case .availability: "Disponibilité"
-        case .presets: "Vues enregistrées"
-        case .platforms: "Plateformes"
+        case .top: String(localized: "En-tête (Accueil, Profil…)")
+        case .library: String(localized: "Bibliothèque")
+        case .stores: String(localized: "Boutiques")
+        case .availability: String(localized: "Disponibilité")
+        case .presets: String(localized: "Vues enregistrées")
+        case .platforms: String(localized: "Plateformes")
         }
     }
 }
@@ -56,22 +56,22 @@ enum SidebarItem: String, CaseIterable, Identifiable {
     }
     var title: String {
         switch self {
-        case .home: "Accueil"
-        case .profile: "Profil"
-        case .statistics: "Statistiques"
-        case .achievements: "Succès"
-        case .refresh: "Actualisations"
-        case .all: "Tous les jeux"
-        case .playable: "Jouables"
-        case .recent: "Récents"
-        case .favorites: "Favoris"
-        case .performance: "Performances"
-        case .emulators: "Émulateurs"
-        case .windows: "Jouer aux jeux Windows"
-        case .search: "Recherche de prix"
-        case .freeGames: "Jeux gratuits"
-        case .freeLoot: "Objets gratuits"
-        case .wishlist: "Liste de souhaits"
+        case .home: String(localized: "Accueil")
+        case .profile: String(localized: "Profil")
+        case .statistics: String(localized: "Statistiques")
+        case .achievements: String(localized: "Succès")
+        case .refresh: String(localized: "Actualisations")
+        case .all: String(localized: "Tous les jeux")
+        case .playable: String(localized: "Jouables")
+        case .recent: String(localized: "Récents")
+        case .favorites: String(localized: "Favoris")
+        case .performance: String(localized: "Performances")
+        case .emulators: String(localized: "Émulateurs")
+        case .windows: String(localized: "Jouer aux jeux Windows")
+        case .search: String(localized: "Recherche de prix")
+        case .freeGames: String(localized: "Jeux gratuits")
+        case .freeLoot: String(localized: "Objets gratuits")
+        case .wishlist: String(localized: "Liste de souhaits")
         case .installed: LaunchKind.installed.label
         case .installable: LaunchKind.installable.label
         case .cloud: LaunchKind.cloud.label
@@ -150,13 +150,13 @@ enum ToolbarItemKind: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .filters: "Filtres"
-        case .view: "Affichage et tri"
-        case .random: "Jeu au hasard"
-        case .add: "Ajouter un jeu"
-        case .platforms: "Gestion des plateformes"
-        case .more: "Plus (mode TV, statistiques…)"
-        case .refresh: "Actualiser"
+        case .filters: String(localized: "Filtres")
+        case .view: String(localized: "Affichage et tri")
+        case .random: String(localized: "Jeu au hasard")
+        case .add: String(localized: "Ajouter un jeu")
+        case .platforms: String(localized: "Gestion des plateformes")
+        case .more: String(localized: "Plus (mode TV, statistiques…)")
+        case .refresh: String(localized: "Actualiser")
         }
     }
 }
@@ -166,12 +166,12 @@ enum HomeSection: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .resume: "Reprendre"
-        case .week: "Temps de jeu de la semaine"
-        case .free: "Gratuit en ce moment"
-        case .deals: "Promos de la liste de souhaits"
-        case .backlog: "Ta pile de jeux"
-        case .news: "Actualités de tes jeux"
+        case .resume: String(localized: "Reprendre")
+        case .week: String(localized: "Temps de jeu de la semaine")
+        case .free: String(localized: "Gratuit en ce moment")
+        case .deals: String(localized: "Promos de la liste de souhaits")
+        case .backlog: String(localized: "Ta pile de jeux")
+        case .news: String(localized: "Actualités de tes jeux")
         }
     }
 }
@@ -181,15 +181,15 @@ enum DetailSection: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .play: "Boutons Jouer / Installer par plateforme"
-        case .performance: "Verdict de performances"
-        case .personal: "Statut, note, tags et notes"
-        case .stats: "Temps de jeu et historique"
-        case .achievements: "Succès"
-        case .news: "Actualités et notes de patch"
-        case .metadata: "Description, genres, studio"
-        case .screenshots: "Captures d'écran"
-        case .customize: "Personnaliser (titre, jaquette)"
+        case .play: String(localized: "Boutons Jouer / Installer par plateforme")
+        case .performance: String(localized: "Verdict de performances")
+        case .personal: String(localized: "Statut, note, tags et notes")
+        case .stats: String(localized: "Temps de jeu et historique")
+        case .achievements: String(localized: "Succès")
+        case .news: String(localized: "Actualités et notes de patch")
+        case .metadata: String(localized: "Description, genres, studio")
+        case .screenshots: String(localized: "Captures d'écran")
+        case .customize: String(localized: "Personnaliser (titre, jaquette)")
         }
     }
 }
@@ -380,7 +380,7 @@ struct CustomizationView: View {
 
     private func resetAll() {
         for k in UIKeys.all where k.hasPrefix("ui.") { UserDefaults.standard.removeObject(forKey: k) }
-        lib.flash("Interface réinitialisée")
+        lib.flash(String(localized: "Interface réinitialisée"))
     }
 
     private func applyMinimal() {
@@ -393,7 +393,7 @@ struct CustomizationView: View {
         tileLogos = false
         tileSubtitle = false
         tileStatus = false
-        lib.flash("Préréglage minimaliste appliqué")
+        lib.flash(String(localized: "Préréglage minimaliste appliqué"))
     }
 
     private func exportSettings() {
@@ -405,7 +405,7 @@ struct CustomizationView: View {
         panel.nameFieldStringValue = "Ludothèque-interface.json"
         guard panel.runModal() == .OK, let u = panel.url else { return }
         try? d.write(to: u)
-        lib.flash("Réglages d'interface exportés")
+        lib.flash(String(localized: "Réglages d'interface exportés"))
     }
 
     private func importSettings() {
@@ -415,7 +415,7 @@ struct CustomizationView: View {
               let dict = try? JSONSerialization.jsonObject(with: d) as? [String: Any] else { return }
         // Only known keys with simple values are accepted.
         for (k, v) in dict where UIKeys.all.contains(k) && (v is String || v is NSNumber) { UserDefaults.standard.set(v, forKey: k) }
-        lib.flash("Réglages d'interface importés")
+        lib.flash(String(localized: "Réglages d'interface importés"))
     }
 }
 

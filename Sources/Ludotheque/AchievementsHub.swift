@@ -48,7 +48,7 @@ final class AchievementHub: ObservableObject {
 
     func refresh(_ lib: Library, replace: Bool = true) async {
         guard !connected.isEmpty else { return }
-        await TaskCenter.shared.runAndWait("achievements", "Récupération des succès") { [self] in await doRefresh(lib, replace: replace) }
+        await TaskCenter.shared.runAndWait("achievements", String(localized: "Récupération des succès")) { [self] in await doRefresh(lib, replace: replace) }
     }
 
     /// Part of "Tout actualiser": at most once a day (Steam needs one request per game).
@@ -61,7 +61,7 @@ final class AchievementHub: ObservableObject {
         var out = [AchSummary]()
         var errors = [String]()
         progress = (0, 1)
-        TaskCenter.shared.detail("achievements", "Xbox et PlayStation…")
+        TaskCenter.shared.detail("achievements", String(localized: "Xbox et PlayStation…"))
         if connected.contains(.xbox) {
             do { out += try await xbox() } catch { errors.append("Xbox : \(error.localizedDescription)") }
         }
@@ -154,7 +154,7 @@ final class AchievementHub: ObservableObject {
 
     private func xbox() async throws -> [AchSummary] {
         guard let key = Creds(.xbox)["apiKey"] else { return [] }
-        let r = try await HTTP.json("https://xbl.io/api/v2/achievements", headers: ["X-Authorization": key, "Accept-Language": "fr-FR"])
+        let r = try await HTTP.json("https://xbl.io/api/v2/achievements", headers: ["X-Authorization": key, "Accept-Language": Langue.bcp47])
         let titles = (r["titles"] ?? (r["content"] as? [String: Any])?["titles"]) as? [[String: Any]] ?? []
         return titles.compactMap { t in
             guard let id = Integrations.string(t["titleId"]), let name = t["name"] as? String,
