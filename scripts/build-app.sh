@@ -6,7 +6,7 @@
 # credentials in the Keychain, caches in ~/Library/Caches/Ludotheque — all created at first launch.
 #
 # Optional environment variables:
-#   VERSION=1.2.0                         version number
+#   VERSION=1.2.1                         version number
 #   BUNDLE_ID=app.ludotheque.Ludotheque   bundle identifier
 #   SIGN_IDENTITY="Developer ID Application: Name (TEAMID)"   otherwise ad-hoc signature
 #   NOTARY_PROFILE=profile                notarytool keychain profile (requires SIGN_IDENTITY)
@@ -14,7 +14,7 @@
 set -e
 cd "${0:A:h}/.."
 
-VERSION=${VERSION:-1.2.0}
+VERSION=${VERSION:-1.2.1}
 BUNDLE_ID=${BUNDLE_ID:-app.ludotheque.Ludotheque}
 NAME="Ludothèque"
 DIST=dist
@@ -94,7 +94,8 @@ fi
 echo "▶ Paquet d'installation…"
 PKGROOT="$DIST/pkgroot"
 mkdir -p "$PKGROOT/Applications"
-cp -R "$APP" "$PKGROOT/Applications/"
+# Keep the payload path ASCII for pkgbuild/BOM; Finder uses CFBundleDisplayName.
+cp -R "$APP" "$PKGROOT/Applications/Ludotheque.app"
 # Always install into /Applications (otherwise macOS may "update" a copy found elsewhere).
 pkgbuild --analyze --root "$PKGROOT" "$DIST/component.plist" >/dev/null
 plutil -replace 0.BundleIsRelocatable -bool false "$DIST/component.plist"

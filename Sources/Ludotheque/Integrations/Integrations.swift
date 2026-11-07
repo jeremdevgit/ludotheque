@@ -72,7 +72,7 @@ enum HTTP {
 
     static func raw(_ url: String, method: String = "GET", headers: [String: String] = [:], form f: [String: String]? = nil,
                     jsonBody: [String: Any]? = nil, session: URLSession = .shared) async throws -> (Data, HTTPURLResponse) {
-        guard let u = URL(string: url) else { throw SyncError(String(localized: "URL invalide : \(url)")) }
+        guard let u = URL(string: url), u.scheme?.lowercased() == "https", u.host != nil, u.user == nil, u.password == nil else { throw SyncError(String(localized: "URL invalide : \(url)")) }
         var req = URLRequest(url: u, timeoutInterval: 30)
         req.httpMethod = method
         req.setValue("Ludotheque/1.0 (macOS game launcher)", forHTTPHeaderField: "User-Agent")
