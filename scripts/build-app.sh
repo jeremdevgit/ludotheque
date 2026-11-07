@@ -6,7 +6,7 @@
 # credentials in the Keychain, caches in ~/Library/Caches/Ludotheque — all created at first launch.
 #
 # Optional environment variables:
-#   VERSION=1.2.0                         version number
+#   VERSION=1.2.1                         version number
 #   BUNDLE_ID=app.ludotheque.Ludotheque   bundle identifier
 #   SIGN_IDENTITY="Developer ID Application: Name (TEAMID)"   otherwise ad-hoc signature
 #   NOTARY_PROFILE=profile                notarytool keychain profile (requires SIGN_IDENTITY)
@@ -14,7 +14,7 @@
 set -e
 cd "${0:A:h}/.."
 
-VERSION=${VERSION:-1.2.0}
+VERSION=${VERSION:-1.2.1}
 BUNDLE_ID=${BUNDLE_ID:-app.ludotheque.Ludotheque}
 NAME="Ludothèque"
 DIST=dist
