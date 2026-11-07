@@ -94,7 +94,8 @@ fi
 echo "▶ Paquet d'installation…"
 PKGROOT="$DIST/pkgroot"
 mkdir -p "$PKGROOT/Applications"
-cp -R "$APP" "$PKGROOT/Applications/"
+# Keep the payload path ASCII for pkgbuild/BOM; Finder uses CFBundleDisplayName.
+cp -R "$APP" "$PKGROOT/Applications/Ludotheque.app"
 # Always install into /Applications (otherwise macOS may "update" a copy found elsewhere).
 pkgbuild --analyze --root "$PKGROOT" "$DIST/component.plist" >/dev/null
 plutil -replace 0.BundleIsRelocatable -bool false "$DIST/component.plist"

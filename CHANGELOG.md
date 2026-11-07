@@ -2,6 +2,7 @@
 
 ## 1.2.1 — 2026-11-07 — Sécurité
 
+- Paquet macOS : chemin de charge utile ASCII compatible avec pkgbuild ; migration des anciennes installations, nom affiché « Ludothèque » conservé.
 - Refus explicite des URL non HTTPS ou contenant des identifiants avant les requêtes des intégrations. Éditeur documenté.
 
 ### English
