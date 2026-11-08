@@ -93,6 +93,7 @@ Todos libres, gratuitos y sin publicidad: [github.com/jeremdevgit](https://githu
 
 | Programa | Para | En breve |
 |---|---|---|
+| [JMeca](https://github.com/jeremdevgit/jmeca) | Windows, macOS, Linux | mantenimiento de vehículos cifrado, carpetas de clientes, historial y consumo |
 | [Boîte à outils](https://github.com/jeremdevgit/boite-a-outils) | Windows, macOS | mantenimiento, limpieza y ajustes ocultos |
 | [Pomme](https://github.com/jeremdevgit/pomme) | Windows | reproductor de Apple Music y música local |
 | [rJb](https://github.com/jeremdevgit/rjb) | Windows | la iluminación RGB de todos tus dispositivos |
