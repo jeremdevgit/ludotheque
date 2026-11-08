@@ -94,6 +94,7 @@ Tous libres, gratuits et sans publicité — [github.com/jeremdevgit](https://gi
 
 | Logiciel | Pour | En bref |
 |---|---|---|
+| [JMeca](https://github.com/jeremdevgit/jmeca) | Windows, macOS, Linux | entretien automobile chiffré, dossiers clients, carnet et suivi du carburant |
 | [Boîte à outils](https://github.com/jeremdevgit/boite-a-outils) | Windows, macOS | entretien, nettoyage et réglages cachés |
 | [Pomme](https://github.com/jeremdevgit/pomme) | Windows | lecteur Apple Music et musique locale |
 | [rJb](https://github.com/jeremdevgit/rjb) | Windows | l'éclairage RGB de tous tes appareils dans une seule application |
