@@ -1,5 +1,15 @@
 # Historique des versions
 
+## 1.2.2 — 2026-11-08 — Sécurité
+
+- Jaquettes, fonds et captures GOG acceptés uniquement depuis les hôtes HTTPS officiels ; les redirections vers un autre hôte sont bloquées et l'ancien cache est nettoyé à la lecture.
+- Désinstallation Epic et Battle.net : les liens de schéma inattendu demandent confirmation avant ouverture ; les cibles sans schéma sont refusées.
+
+### English
+
+- Accept GOG covers, backgrounds and screenshots only from official HTTPS image hosts; block redirects to other hosts and sanitize older cached entries.
+- Epic and Battle.net uninstall links with unexpected schemes require confirmation; targets without a URL scheme are rejected.
+
 ## 1.2.1 — 2026-11-07 — Sécurité
 
 - Paquet macOS : chemin de charge utile ASCII compatible avec pkgbuild ; migration des anciennes installations, nom affiché « Ludothèque » conservé.

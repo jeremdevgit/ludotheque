@@ -646,8 +646,15 @@ final class Library {
 
     /// Launch targets can come from imported / restored data: never run scripts or raw executables,
     /// and ask before opening an unusual URL scheme.
-    static func launchAllowed(_ target: String, game g: Game) -> Bool {
-        if target.hasPrefix("emu:") { return true }
+    static func launchAllowed(_ target: String, game g: Game,
+                              trustedSchemes: Set<String>? = nil, rememberDecision: Bool = true,
+                              requireURLScheme: Bool = false, allowEmulator: Bool = true) -> Bool {
+        if requireURLScheme && URL(string: target)?.scheme == nil {
+            let a = NSAlert(); a.messageText = String(localized: "Lien invalide")
+            a.informativeText = String(localized: "Le lien de désinstallation de « \(g.title) » n'est pas valide.")
+            a.runModal(); return false
+        }
+        if target.hasPrefix("emu:"), allowEmulator { return true }
         if target.hasPrefix("/") {
             guard target.hasSuffix(".app") || target.hasSuffix(".app/") else {
                 let a = NSAlert(); a.messageText = String(localized: "Lancement bloqué")
@@ -660,15 +667,15 @@ final class Library {
             let a = NSAlert(); a.messageText = String(localized: "Lien invalide"); a.informativeText = String(localized: "Le lien de lancement de « \(g.title) » n'est pas valide."); a.runModal()
             return false
         }
-        if knownSchemes.contains(scheme) { return true }
+        if (trustedSchemes ?? knownSchemes).contains(scheme) { return true }
         let key = "allowedScheme.\(g.id).\(scheme)"
-        if UserDefaults.standard.bool(forKey: key) { return true }
+        if rememberDecision && UserDefaults.standard.bool(forKey: key) { return true }
         let a = NSAlert()
         a.messageText = String(localized: "Ouvrir avec « \(scheme) » ?")
         a.informativeText = String(localized: "« \(g.title) » va ouvrir le lien \(target). Continue seulement si tu l'as configuré toi-même.")
         a.addButton(withTitle: String(localized: "Ouvrir")); a.addButton(withTitle: String(localized: "Annuler"))
         guard a.runModal() == .alertFirstButtonReturn else { return false }
-        UserDefaults.standard.set(true, forKey: key)
+        if rememberDecision { UserDefaults.standard.set(true, forKey: key) }
         return true
     }
 

@@ -112,7 +112,18 @@ struct UninstallSheet: View {
     private func run() {
         guard let plan = model.plan else { return }
         model.working = true
-        if case .launcher(_, let url) = plan.method { NSWorkspace.shared.open(url) }
+        if case .launcher(let name, let url) = plan.method {
+            let epic = name == "Epic Games"
+            guard Library.launchAllowed(url.absoluteString, game: game,
+                                        trustedSchemes: epic ? ["com.epicgames.launcher"] : nil,
+                                        rememberDecision: !epic,
+                                        requireURLScheme: true,
+                                        allowEmulator: false) else {
+                model.working = false
+                return
+            }
+            NSWorkspace.shared.open(url)
+        }
         let failed = Uninstaller.trash(plan.items.filter { model.selected.contains($0.id) })
         lib.uninstalling = nil
         lib.flash(failed.isEmpty ? String(localized: "\(game.title) désinstallé — fichiers placés dans la Corbeille") : String(localized: "\(failed.count) élément(s) n'ont pas pu être supprimés"))
