@@ -97,9 +97,8 @@ actor GamesDB {
         let game = obj["game"] as? [String: Any]
         var e = Entry()
         e.title = localized(game?["title"]) ?? localized(obj["title"])
-        if let fmt = (game?["vertical_cover"] as? [String: Any])?["url_format"] as? String {
-            e.cover = fmt.replacingOccurrences(of: "{formatter}", with: "_glx_vertical_cover").replacingOccurrences(of: "{ext}", with: "webp")
-        }
+        e.cover = GOGImageURL.make((game?["vertical_cover"] as? [String: Any])?["url_format"] as? String,
+                                   formatter: "_glx_vertical_cover", fileExtension: "webp")
         if let os = obj["supported_operating_systems"] as? [[String: Any]], !os.isEmpty {
             e.mac = os.contains { ($0["slug"] as? String) == "osx" }
         }
@@ -124,18 +123,29 @@ actor GamesDB {
     private let detailsURL = Paths.support.appendingPathComponent("gamesdb-details.json")
     private var detailsCache: [String: Details]?
 
+    private func loadDetailsCache() {
+        guard detailsCache == nil else { return }
+        let cached = (try? JSONDecoder().decode([String: Details].self, from: Data(contentsOf: detailsURL))) ?? [:]
+        detailsCache = cached.mapValues(Self.sanitize)
+    }
+
+    private static func sanitize(_ details: Details) -> Details {
+        var safe = details
+        safe.background = GOGImageURL.make(details.background, formatter: "_bg_crop_1366x655", fileExtension: "jpg")
+        safe.screenshots = details.screenshots.compactMap {
+            GOGImageURL.make($0, formatter: "_product_card_v2_mobile_slider_639", fileExtension: "jpg")
+        }
+        return safe
+    }
+
     /// Details already downloaded (no network), for statistics.
     func cachedDetails(_ groups: [[Game]]) -> [Details?] {
-        if detailsCache == nil {
-            detailsCache = (try? JSONDecoder().decode([String: Details].self, from: Data(contentsOf: detailsURL))) ?? [:]
-        }
+        loadDetailsCache()
         return groups.map { g in g.lazy.compactMap { self.detailsCache?[$0.id] }.first }
     }
 
     func details(for group: [Game]) async -> Details? {
-        if detailsCache == nil {
-            detailsCache = (try? JSONDecoder().decode([String: Details].self, from: Data(contentsOf: detailsURL))) ?? [:]
-        }
+        loadDetailsCache()
         for g in group { if let d = detailsCache?[g.id] { return d } }
         // Store ids first, then a Steam title search as universal fallback.
         var candidates = group.compactMap { g in Self.dbId(g).map { (g.id, $0, g.externalId) } }
@@ -162,7 +172,7 @@ actor GamesDB {
             (g[k] as? [[String: Any]] ?? []).compactMap { ($0["name"] as? String) ?? localized($0["name"]) }
         }
         func image(_ v: Any?, _ fmt: String) -> String? {
-            ((v as? [String: Any])?["url_format"] as? String)?.replacingOccurrences(of: "{formatter}", with: fmt).replacingOccurrences(of: "{ext}", with: "jpg")
+            GOGImageURL.make((v as? [String: Any])?["url_format"] as? String, formatter: fmt, fileExtension: "jpg")
         }
         var d = Details()
         d.summary = localized(g["summary"])
@@ -181,7 +191,7 @@ actor GamesDB {
 
     static func apply(_ e: Entry, to g: inout Game) {
         if !g.hasTitle, let t = e.title { g.title = t; Links.refresh(&g) }
-        if g.coverURL == nil { g.coverURL = e.cover }
+        if g.coverURL == nil { g.coverURL = GOGImageURL.make(e.cover, formatter: "_glx_vertical_cover", fileExtension: "webp") }
         if g.macNative == nil { g.macNative = e.mac }
         if e.dlc == true && !g.installed { g.isDLC = true }
     }

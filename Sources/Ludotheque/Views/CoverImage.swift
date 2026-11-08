@@ -54,13 +54,30 @@ actor CoverStore {
     // MARK: Load queue (bounded, LIFO, cancellable)
 
     private static let maxConcurrent = 8
+    private final class RedirectPolicy: NSObject, URLSessionTaskDelegate {
+        func urlSession(_ session: URLSession, task: URLSessionTask,
+                        willPerformHTTPRedirection response: HTTPURLResponse,
+                        newRequest request: URLRequest,
+                        completionHandler: @escaping (URLRequest?) -> Void) {
+            guard let origin = task.originalRequest?.url, GOGImageURL.isAllowed(origin) else {
+                completionHandler(request)
+                return
+            }
+            guard let destination = request.url, GOGImageURL.isAllowed(destination) else {
+                completionHandler(nil)
+                return
+            }
+            completionHandler(request)
+        }
+    }
+    private static let redirectPolicy = RedirectPolicy()
     /// Short timeouts: a slow or dead image host must never hold a slot for a minute.
     private static let session: URLSession = {
         let c = URLSessionConfiguration.default
         c.timeoutIntervalForRequest = 12
         c.timeoutIntervalForResource = 20
         c.httpMaximumConnectionsPerHost = 4
-        return URLSession(configuration: c)
+        return URLSession(configuration: c, delegate: redirectPolicy, delegateQueue: nil)
     }()
 
     /// Disk-cached cover, if any (no network).
